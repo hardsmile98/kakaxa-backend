@@ -8,8 +8,8 @@ datasource db {
 }
 
 model User {
-  userId Int @id @unique
+  userId BigInt @id @unique
   lives Int @default(3)
   liveTimestamp DateTime? @db.Timestamp()
-  score Int @default(0)
+  score BigInt @default(0)
 }
