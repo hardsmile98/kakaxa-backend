@@ -8,8 +8,55 @@ datasource db {
 }
 
 model User {
-  userId BigInt @id @unique
-  lives Int @default(3)
-  liveTimestamp DateTime? @db.Timestamp()
-  score BigInt @default(0)
+  userId            BigInt      @id @unique
+  amountEnergy      Int         @default(3)
+  lastGameTimestamp DateTime?   @db.Timestamp()
+  gameTime          Int         @default(60)
+  allScore          Int         @default(0)
+  currentScore      Int         @default(0)
+  leadboardScore    Int         @default(0)
+  skin              String      @default("default")
+  amountNft         Int         @default(0)
+  userTasks         UserTask[]
+  inviteCode        String
+  refCode           String?
+  userBoost         UserBoost[]
+}
+
+model UserTask {
+  id        Int     @id @default(autoincrement())
+  user      User?   @relation(fields: [userId], references: [userId])
+  userId    BigInt?
+  task      Task?   @relation(fields: [taskId], references: [id])
+  taskId    Int?
+  completed Boolean @default(false)
+}
+
+model Task {
+  id        Int        @id @default(autoincrement())
+  title     String     @default("")
+  bonus     Int        @default(0)
+  link      String     @default("")
+  userTasks UserTask[]
+}
+
+model UserBoost {
+  id               Int       @id @default(autoincrement())
+  user             User?     @relation(fields: [userId], references: [userId])
+  userId           BigInt?
+  boost            Boost?    @relation(fields: [boostId], references: [id])
+  boostId          Int?
+  level            Int       @default(1)
+  availableCount   Int       @default(1)
+  lastUseTimestamp DateTime? @db.Timestamp()
+}
+
+model Boost {
+  id         Int         @id @default(autoincrement())
+  title      String      @default("")
+  slug       String      @default("")
+  allCount   Int         @default(1)
+  userBoost  UserBoost[]
+  levelPrice Int         @default(0)
+  maxLevel   Int         @default(0)
 }
