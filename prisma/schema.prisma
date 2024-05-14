@@ -9,6 +9,8 @@ datasource db {
 
 model User {
   userId            BigInt      @id @unique
+  name              String      @default("")
+  username          String      @default("")
   amountEnergy      Int         @default(3)
   lastGameTimestamp DateTime?   @db.Timestamp()
   gameTime          Int         @default(60)
@@ -21,6 +23,7 @@ model User {
   inviteCode        String
   refCode           String?
   userBoost         UserBoost[]
+  isShowHint        Boolean     @default(true)
 }
 
 model UserTask {
@@ -37,6 +40,7 @@ model Task {
   title     String     @default("")
   bonus     Int        @default(0)
   link      String     @default("")
+  chatId    String? 
   userTasks UserTask[]
 }
 
@@ -52,11 +56,12 @@ model UserBoost {
 }
 
 model Boost {
-  id         Int         @id @default(autoincrement())
-  title      String      @default("")
-  slug       String      @default("")
-  allCount   Int         @default(1)
-  userBoost  UserBoost[]
-  levelPrice Int         @default(0)
-  maxLevel   Int         @default(0)
+  id          Int         @id @default(autoincrement())
+  title       String      @default("")
+  slug        String      @default("")
+  allCount    Int         @default(1)
+  userBoost   UserBoost[]
+  levelPrice  Int         @default(0)
+  maxLevel    Int         @default(0)
+  canImproved Boolean     @default(false)
 }

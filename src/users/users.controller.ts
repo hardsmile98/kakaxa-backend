@@ -10,4 +10,14 @@ export class UsersController {
   getProfile(@GetUser() userId: number) {
     return this.usersService.getProfile(userId);
   }
+
+  @Get('/top')
+  getLeadboard() {
+    return this.usersService.getLeadboard();
+  }
+
+  @Get('/referals')
+  getReferals(@GetUser() userId: number) {
+    return this.usersService.getReferals(userId);
+  }
 }

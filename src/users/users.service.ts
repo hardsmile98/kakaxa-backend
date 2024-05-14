@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -11,12 +11,14 @@ export class UsersService {
     });
 
     if (!user) {
-      const newUser = await this.createProfile(userId);
+      throw new UnauthorizedException('User is unauthorized');
+    }
 
-      return {
-        success: true,
-        user: newUser,
-      };
+    if (user.isShowHint) {
+      await this.prismaService.user.update({
+        where: { userId: user.userId },
+        data: { isShowHint: false },
+      });
     }
 
     return {
@@ -25,13 +27,37 @@ export class UsersService {
     };
   }
 
-  async createProfile(userId: number) {
-    const createdUser = await this.prismaService.user.create({
-      data: {
-        userId,
+  async getLeadboard() {
+    const top100 = await this.prismaService.user.findMany({
+      take: 100,
+      orderBy: [{ leadboardScore: 'desc' }],
+      select: {
+        userId: true,
+        leadboardScore: true,
+        name: true,
+        username: true,
       },
     });
 
-    return createdUser;
+    return top100;
+  }
+
+  async getReferals(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { userId: userId },
+    });
+
+    const referals = await this.prismaService.user.findMany({
+      where: {
+        refCode: user.inviteCode,
+      },
+      select: {
+        userId: true,
+        name: true,
+        username: true,
+      },
+    });
+
+    return referals;
   }
 }
