@@ -9,6 +9,14 @@ const {
   env: { TELEGRAM_TOKEN },
 } = process;
 
+export type TgUser = {
+  id: bigint;
+  first_name: string;
+  last_name: string;
+  username: string;
+  language_code: string;
+};
+
 const transformInitData = (telegramInitData: string) => {
   const data = Object.fromEntries(new URLSearchParams(telegramInitData));
 
@@ -54,7 +62,7 @@ export const GetUser = createParamDecorator(
         throw new UnauthorizedException('User is unauthorized');
       }
 
-      return data.user.id;
+      return data.user as TgUser;
     } catch (error) {
       throw new UnauthorizedException('User is unauthorized');
     }

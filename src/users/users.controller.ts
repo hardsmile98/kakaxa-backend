@@ -1,14 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { GetUser } from 'src/global/decorator';
+import { GetUser, TgUser } from 'src/global/decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('/profile')
-  getProfile(@GetUser() userId: number) {
-    return this.usersService.getProfile(userId);
+  getProfile(@GetUser() user: TgUser, @Query() query: { refCode?: string }) {
+    return this.usersService.getProfile(user, query.refCode);
   }
 
   @Get('/top')
@@ -17,7 +17,7 @@ export class UsersController {
   }
 
   @Get('/referals')
-  getReferals(@GetUser() userId: number) {
-    return this.usersService.getReferals(userId);
+  getReferals(@GetUser() user: TgUser) {
+    return this.usersService.getReferals(user);
   }
 }

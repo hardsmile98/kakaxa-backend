@@ -13,7 +13,6 @@ CREATE TABLE "User" (
     "amountNft" INTEGER NOT NULL DEFAULT 0,
     "inviteCode" TEXT NOT NULL,
     "refCode" TEXT,
-    "isShowHint" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("userId")
 );
@@ -34,7 +33,6 @@ CREATE TABLE "Task" (
     "title" TEXT NOT NULL DEFAULT '',
     "bonus" INTEGER NOT NULL DEFAULT 0,
     "link" TEXT NOT NULL DEFAULT '',
-    "chatId" TEXT,
 
     CONSTRAINT "Task_pkey" PRIMARY KEY ("id")
 );
@@ -56,6 +54,7 @@ CREATE TABLE "Boost" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL DEFAULT '',
     "slug" TEXT NOT NULL DEFAULT '',
+    "description" TEXT NOT NULL DEFAULT '',
     "allCount" INTEGER NOT NULL DEFAULT 1,
     "levelPrice" INTEGER NOT NULL DEFAULT 0,
     "maxLevel" INTEGER NOT NULL DEFAULT 0,

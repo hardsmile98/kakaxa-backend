@@ -1,63 +1,156 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { generate } from 'short-uuid';
 
 @Injectable()
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getProfile(userId: number) {
-    const user = await this.prismaService.user.findUnique({
-      where: { userId: userId },
+  async getProfile(user: TgUser, refCode?: string) {
+    try {
+      const findedUser = await this.prismaService.user.findUnique({
+        where: { userId: user.id },
+      });
+
+      if (!findedUser) {
+        const newUser = await this.createUser(user, refCode);
+
+        return {
+          success: true,
+          newUser: false,
+          user: newUser,
+        };
+      }
+
+      return {
+        success: true,
+        newUser: false,
+        user: findedUser,
+      };
+    } catch (e) {
+      return {
+        success: false,
+      };
+    }
+  }
+
+  async createUser(user: TgUser, refCode?: string) {
+    const inviteCode = generate();
+
+    const tasks = await this.prismaService.task.findMany({
+      select: { id: true },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('User is unauthorized');
-    }
+    const boosts = await this.prismaService.boost.findMany({
+      select: {
+        id: true,
+        slug: true,
+      },
+    });
 
-    if (user.isShowHint) {
-      await this.prismaService.user.update({
-        where: { userId: user.userId },
-        data: { isShowHint: false },
-      });
-    }
+    const newUser = await this.prismaService.user.create({
+      include: {
+        userBoosts: true,
+        userTasks: true,
+      },
+      data: {
+        userId: user.id,
+        name: user.first_name,
+        username: user.username,
+        inviteCode,
+        refCode,
+        userBoosts: {
+          createMany: {
+            data: boosts.map(({ id, slug }) => ({
+              userId: user.id,
+              boostId: id,
+              availableCount: slug === 'devourer' ? 2 : 1,
+            })),
+          },
+        },
+        userTasks: {
+          createMany: {
+            data: tasks.map(({ id }) => ({
+              userId: user.id,
+              taskId: id,
+            })),
+          },
+        },
+      },
+    });
 
-    return {
-      success: true,
-      user,
-    };
+    return newUser;
+  }
+
+  async addScore(user: TgUser, count: number) {
+    const findedUser = await this.prismaService.user.findFirst({
+      where: { userId: user.id },
+    });
+
+    await this.prismaService.user.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        allScore: findedUser.allScore + count,
+        leadboardScore: findedUser.leadboardScore + count,
+        currentScore: findedUser.currentScore + count,
+      },
+    });
+
+    return true;
   }
 
   async getLeadboard() {
-    const top100 = await this.prismaService.user.findMany({
-      take: 100,
-      orderBy: [{ leadboardScore: 'desc' }],
-      select: {
-        userId: true,
-        leadboardScore: true,
-        name: true,
-        username: true,
-      },
-    });
+    try {
+      const top100 = await this.prismaService.user.findMany({
+        take: 100,
+        orderBy: [{ leadboardScore: 'desc' }],
+        select: {
+          userId: true,
+          leadboardScore: true,
+          name: true,
+          username: true,
+        },
+      });
 
-    return top100;
+      return {
+        top: top100,
+        success: true,
+      };
+    } catch (e) {
+      return {
+        success: false,
+      };
+    }
   }
 
-  async getReferals(userId: number) {
-    const user = await this.prismaService.user.findUnique({
-      where: { userId: userId },
-    });
+  async getReferals(user: TgUser) {
+    try {
+      const findedUser = await this.prismaService.user.findUnique({
+        where: { userId: user.id },
+      });
 
-    const referals = await this.prismaService.user.findMany({
-      where: {
-        refCode: user.inviteCode,
-      },
-      select: {
-        userId: true,
-        name: true,
-        username: true,
-      },
-    });
+      const referals = await this.prismaService.user.findMany({
+        where: {
+          refCode: findedUser.inviteCode,
+        },
+        select: {
+          userId: true,
+          name: true,
+          username: true,
+        },
+      });
 
-    return referals;
+      return {
+        referals,
+        success: true,
+      };
+    } catch (e) {
+      return {
+        success: false,
+      };
+    }
   }
 }
