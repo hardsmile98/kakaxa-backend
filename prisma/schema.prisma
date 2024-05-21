@@ -12,7 +12,7 @@ model User {
   name              String      @default("")
   username          String      @default("")
   amountEnergy      Int         @default(3)
-  lastGameTimestamp DateTime?   @db.Timestamp()
+  lastGameTimestamp String?     @db.VarChar(32)
   gameTime          Int         @default(60)
   allScore          Int         @default(0)
   currentScore      Int         @default(0)
@@ -20,9 +20,10 @@ model User {
   skin              String      @default("default")
   amountNft         Int         @default(0)
   userTasks         UserTask[]
-  inviteCode        String      @unique
-  refCode           String?
-  userBoosts         UserBoost[]
+  inviteCode        String      @unique @db.VarChar(16)
+  refCode           String?     @db.VarChar(16)
+  userBoosts        UserBoost[]
+  userGames         UserGame[]
 }
 
 model UserTask {
@@ -48,9 +49,9 @@ model UserBoost {
   userId           BigInt?
   boost            Boost?    @relation(fields: [boostId], references: [id])
   boostId          Int?
-  level            Int       @default(1)
+  level            Int       @default(0)
   availableCount   Int       @default(1)
-  lastUseTimestamp DateTime? @db.Timestamp()
+  lastUseTimestamp String?   @db.VarChar(32)
 }
 
 model Boost {
@@ -63,4 +64,14 @@ model Boost {
   levelPrice  Int         @default(0)
   maxLevel    Int         @default(0)
   canImproved Boolean     @default(false)
+}
+
+model UserGame {
+  id        Int       @id @default(autoincrement())
+  user      User?     @relation(fields: [userId], references: [userId])
+  userId    BigInt?
+  hash      String    @unique
+  score     Int       @default(0)
+  startTime String?   @db.VarChar(32)
+  endTime   String?   @db.VarChar(32)
 }

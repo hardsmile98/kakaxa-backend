@@ -31,11 +31,16 @@ export class UsersService {
     } catch (e) {
       return {
         success: false,
+        message: 'Произошла непредвиденная ошибка',
       };
     }
   }
 
   async createUser(user: TgUser, refCode?: string) {
+    if (refCode) {
+      await this.checkRefCode(refCode);
+    }
+
     const inviteCode = generate();
 
     const tasks = await this.prismaService.task.findMany({
@@ -63,7 +68,6 @@ export class UsersService {
         userBoosts: {
           createMany: {
             data: boosts.map(({ id, slug }) => ({
-              userId: user.id,
               boostId: id,
               availableCount: slug === 'devourer' ? 2 : 1,
             })),
@@ -72,7 +76,6 @@ export class UsersService {
         userTasks: {
           createMany: {
             data: tasks.map(({ id }) => ({
-              userId: user.id,
               taskId: id,
             })),
           },
@@ -80,7 +83,31 @@ export class UsersService {
       },
     });
 
+    delete newUser.userBoosts;
+    delete newUser.userTasks;
+
     return newUser;
+  }
+
+  async checkRefCode(refCode: string) {
+    const findedUser = await this.prismaService.user.findFirst({
+      where: { inviteCode: refCode },
+    });
+
+    if (findedUser) {
+      const bonusForInvite = 100;
+
+      await this.prismaService.user.update({
+        where: {
+          userId: findedUser.userId,
+        },
+        data: {
+          allScore: findedUser.allScore + bonusForInvite,
+          leadboardScore: findedUser.leadboardScore + bonusForInvite,
+          currentScore: findedUser.currentScore + bonusForInvite,
+        },
+      });
+    }
   }
 
   async addScore(user: TgUser, count: number) {
@@ -122,6 +149,7 @@ export class UsersService {
     } catch (e) {
       return {
         success: false,
+        message: 'Произошла непредвиденная ошибка',
       };
     }
   }
@@ -150,6 +178,7 @@ export class UsersService {
     } catch (e) {
       return {
         success: false,
+        message: 'Произошла непредвиденная ошибка',
       };
     }
   }

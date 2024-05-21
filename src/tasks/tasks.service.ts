@@ -35,6 +35,7 @@ export class TasksService {
     } catch (e) {
       return {
         success: false,
+        message: 'Произошла непредвиденная ошибка',
       };
     }
   }
@@ -52,12 +53,10 @@ export class TasksService {
         },
       });
 
-      if (
-        userTask.userId.toString() !== user.id.toString() ||
-        userTask.completed
-      ) {
+      if (userTask.completed) {
         return {
           success: false,
+          message: 'Задание уже выполнено',
         };
       }
 
@@ -74,6 +73,7 @@ export class TasksService {
     } catch (e) {
       return {
         success: false,
+        message: 'Произошла непредвиденная ошибка',
       };
     }
   }
