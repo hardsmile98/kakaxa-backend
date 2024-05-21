@@ -70,7 +70,7 @@ model UserGame {
   id        Int       @id @default(autoincrement())
   user      User?     @relation(fields: [userId], references: [userId])
   userId    BigInt?
-  hash      String    @unique
+  hash      String    @unique @db.VarChar(64)
   score     Int       @default(0)
   startTime String?   @db.VarChar(32)
   endTime   String?   @db.VarChar(32)
