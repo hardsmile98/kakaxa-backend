@@ -20,6 +20,9 @@ export class TasksService {
         include: {
           task: true,
         },
+        orderBy: {
+          id: 'asc',
+        },
       });
 
       const formatted = tasks.map(({ id, completed, task }) => ({

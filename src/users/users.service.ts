@@ -18,7 +18,7 @@ export class UsersService {
 
         return {
           success: true,
-          newUser: false,
+          newUser: true,
           user: newUser,
         };
       }
@@ -129,7 +129,7 @@ export class UsersService {
     return true;
   }
 
-  async getLeadboard() {
+  async getLeadboard(user: TgUser) {
     try {
       const top100 = await this.prismaService.user.findMany({
         take: 100,
@@ -142,8 +142,21 @@ export class UsersService {
         },
       });
 
+      const [row] = await this.prismaService.$queryRawUnsafe<
+        {
+          index: number;
+          leadboardScore: number;
+        }[]
+      >(
+        `SELECT index, "leadboardScore" from 
+        (SELECT row_number() OVER w as index, "userId", "leadboardScore" 
+        FROM public."User" WINDOW w AS (ORDER BY "leadboardScore" DESC))
+        u where u."userId" = ${user.id};`,
+      );
+
       return {
         top: top100,
+        position: row,
         success: true,
       };
     } catch (e) {
@@ -158,6 +171,9 @@ export class UsersService {
     try {
       const findedUser = await this.prismaService.user.findUnique({
         where: { userId: user.id },
+        select: {
+          inviteCode: true,
+        },
       });
 
       const referals = await this.prismaService.user.findMany({

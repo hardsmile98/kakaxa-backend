@@ -12,8 +12,8 @@ export class UsersController {
   }
 
   @Get('/top')
-  getLeadboard() {
-    return this.usersService.getLeadboard();
+  getLeadboard(@GetUser() user: TgUser) {
+    return this.usersService.getLeadboard(user);
   }
 
   @Get('/referals')
