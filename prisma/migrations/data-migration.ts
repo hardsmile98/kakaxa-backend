@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 const addTasks = async () => {
   await prisma.task.createMany({
     data: [
-      { title: 'Подписка на канал', bonus: 100, link: '' },
-      { title: 'Подписка на чат', bonus: 100, link: '' },
+      { title: 'Подписка на канал', bonus: 100, link: 'https://www.google.ru' },
+      { title: 'Подписка на чат', bonus: 100, link: 'https://www.google.ru' },
     ],
   });
 };
@@ -20,10 +20,12 @@ const addBoosts = async () => {
         description:
           'Пожирает все на своем пути в течение 10 секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай КАКАХИ',
         allCount: 2,
+        type: 'daily',
       },
       {
         title: 'Энергия',
         slug: 'energy',
+        type: 'daily',
         description: 'Восстанавливает 1 единицу энергии',
         improveTitle: 'Время игры +5 сек.',
         allCount: 1,

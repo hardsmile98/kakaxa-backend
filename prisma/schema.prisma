@@ -54,14 +54,20 @@ model UserBoost {
   lastUseTimestamp String? @db.VarChar(32)
 }
 
+enum BoostType {
+  default
+  daily
+}
+
 model Boost {
   id           Int         @id @default(autoincrement())
   title        String      @default("")
   slug         String      @unique @default("") @db.VarChar(64)
   description  String      @default("")
+  type         BoostType   @default(default)
   improveTitle String      @default("")
   allCount     Int         @default(1)
-  userBoost    UserBoost[]
+  userBoost    UserBoost[] 
   levelPrice   Int         @default(0)
   maxLevel     Int         @default(0)
   canImproved  Boolean     @default(false)
