@@ -38,40 +38,41 @@ model UserTask {
 model Task {
   id        Int        @id @default(autoincrement())
   title     String     @default("")
-  bonus     Int        @default(0) 
+  bonus     Int        @default(0)
   link      String     @default("")
   userTasks UserTask[]
 }
 
 model UserBoost {
-  id               Int       @id @default(autoincrement())
-  user             User?     @relation(fields: [userId], references: [userId])
+  id               Int     @id @default(autoincrement())
+  user             User?   @relation(fields: [userId], references: [userId])
   userId           BigInt?
-  boost            Boost?    @relation(fields: [boostId], references: [id])
+  boost            Boost?  @relation(fields: [boostId], references: [id])
   boostId          Int?
-  level            Int       @default(0)
-  availableCount   Int       @default(1)
-  lastUseTimestamp String?   @db.VarChar(32)
+  level            Int     @default(0)
+  availableCount   Int     @default(1)
+  lastUseTimestamp String? @db.VarChar(32)
 }
 
 model Boost {
-  id          Int         @id @default(autoincrement())
-  title       String      @default("")
-  slug        String      @default("") @unique @db.VarChar(64)
-  description String      @default("")
-  allCount    Int         @default(1)
-  userBoost   UserBoost[]
-  levelPrice  Int         @default(0)
-  maxLevel    Int         @default(0)
-  canImproved Boolean     @default(false)
+  id           Int         @id @default(autoincrement())
+  title        String      @default("")
+  slug         String      @unique @default("") @db.VarChar(64)
+  description  String      @default("")
+  improveTitle String      @default("")
+  allCount     Int         @default(1)
+  userBoost    UserBoost[]
+  levelPrice   Int         @default(0)
+  maxLevel     Int         @default(0)
+  canImproved  Boolean     @default(false)
 }
 
 model UserGame {
-  id        Int       @id @default(autoincrement())
-  user      User?     @relation(fields: [userId], references: [userId])
+  id        Int     @id @default(autoincrement())
+  user      User?   @relation(fields: [userId], references: [userId])
   userId    BigInt?
-  hash      String    @unique @db.VarChar(64)
-  score     Int       @default(0)
-  startTime String?   @db.VarChar(32)
-  endTime   String?   @db.VarChar(32)
+  hash      String  @unique @db.VarChar(64)
+  score     Int     @default(0)
+  startTime String? @db.VarChar(32)
+  endTime   String? @db.VarChar(32)
 }
