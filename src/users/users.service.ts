@@ -29,6 +29,7 @@ export class UsersService {
         user: findedUser,
       };
     } catch (e) {
+      console.log(e);
       return {
         success: false,
         message: 'Произошла непредвиденная ошибка',

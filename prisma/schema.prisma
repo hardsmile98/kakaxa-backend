@@ -20,8 +20,8 @@ model User {
   skin              String      @default("default")
   amountNft         Int         @default(0)
   userTasks         UserTask[]
-  inviteCode        String      @unique @db.VarChar(16)
-  refCode           String?     @db.VarChar(16)
+  inviteCode        String      @unique @db.VarChar(32)
+  refCode           String?     @db.VarChar(32)
   userBoosts        UserBoost[]
   userGames         UserGame[]
 }
@@ -38,7 +38,7 @@ model UserTask {
 model Task {
   id        Int        @id @default(autoincrement())
   title     String     @default("")
-  bonus     Int        @default(0)
+  bonus     Int        @default(0) 
   link      String     @default("")
   userTasks UserTask[]
 }
@@ -57,7 +57,7 @@ model UserBoost {
 model Boost {
   id          Int         @id @default(autoincrement())
   title       String      @default("")
-  slug        String      @default("")
+  slug        String      @default("") @unique @db.VarChar(64)
   description String      @default("")
   allCount    Int         @default(1)
   userBoost   UserBoost[]
