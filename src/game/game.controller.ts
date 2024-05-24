@@ -1,15 +1,15 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { GameService } from './game.service';
 import { GetUser, TgUser } from 'src/global/decorator';
-import { GameDto } from './dto';
+import { GameDto, StartGameDto } from './dto';
 
 @Controller('game')
 export class GameController {
   constructor(private gameService: GameService) {}
 
   @Post('/start')
-  startGame(@GetUser() user: TgUser) {
-    return this.gameService.startGame(user);
+  startGame(@GetUser() user: TgUser, @Body() dto: StartGameDto) {
+    return this.gameService.startGame(user, dto);
   }
 
   @Post('/end')

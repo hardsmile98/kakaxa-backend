@@ -2,28 +2,36 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
-import { GameDto } from './dto';
+import { GameDto, StartGameDto } from './dto';
+import { BoostsService } from 'src/boosts/boosts.service';
 
 @Injectable()
 export class GameService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private boostsService: BoostsService,
+  ) {}
 
-  async startGame(user: TgUser) {
+  async startGame(user: TgUser, dto: StartGameDto) {
     try {
-      const findedUser = await this.prismaService.user.findUnique({
-        where: { userId: user.id },
-      });
+      if (dto.boostId) {
+        await this.boostsService.applyBoost(user, { boostId: dto.boostId });
+      } else {
+        const findedUser = await this.prismaService.user.findUnique({
+          where: { userId: user.id },
+        });
 
-      if (findedUser.amountEnergy <= 0) {
-        throw new BadRequestException('Недостаточно энергии для старта игры');
+        if (findedUser.amountEnergy <= 0) {
+          throw new BadRequestException('Недостаточно энергии для старта игры');
+        }
+
+        await this.prismaService.user.update({
+          where: { userId: user.id },
+          data: {
+            amountEnergy: findedUser.amountEnergy - 1,
+          },
+        });
       }
-
-      await this.prismaService.user.update({
-        where: { userId: user.id },
-        data: {
-          amountEnergy: findedUser.amountEnergy - 1,
-        },
-      });
 
       const hash = uuidv4();
 
