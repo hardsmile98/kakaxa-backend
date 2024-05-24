@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TaskDto } from './dto';
@@ -36,10 +36,7 @@ export class TasksService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -57,10 +54,7 @@ export class TasksService {
       });
 
       if (userTask.completed) {
-        return {
-          success: false,
-          message: 'Задание уже выполнено',
-        };
+        throw new BadRequestException('Задание уже выполнено');
       }
 
       await this.userService.addScore(user, userTask.task.bonus);
@@ -74,10 +68,7 @@ export class TasksService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 }

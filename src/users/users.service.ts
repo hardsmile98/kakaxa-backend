@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generate } from 'short-uuid';
@@ -29,11 +29,7 @@ export class UsersService {
         user: findedUser,
       };
     } catch (e) {
-      console.log(e);
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -161,10 +157,7 @@ export class UsersService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -193,10 +186,7 @@ export class UsersService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 }

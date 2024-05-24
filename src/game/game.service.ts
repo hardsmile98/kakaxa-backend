@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,11 +14,8 @@ export class GameService {
         where: { userId: user.id },
       });
 
-      if (findedUser.amountEnergy === 0) {
-        return {
-          success: false,
-          message: 'Недостаточно энергии для старта игры',
-        };
+      if (findedUser.amountEnergy <= 0) {
+        throw new BadRequestException('Недостаточно энергии для старта игры');
       }
 
       await this.prismaService.user.update({
@@ -30,7 +27,7 @@ export class GameService {
 
       const hash = uuidv4();
 
-      await this.prismaService.userGame.create({
+      const newGame = await this.prismaService.userGame.create({
         data: {
           userId: user.id,
           hash,
@@ -39,13 +36,14 @@ export class GameService {
       });
 
       return {
+        game: {
+          hash,
+          id: newGame.id,
+        },
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -67,27 +65,24 @@ export class GameService {
       });
 
       if (!findedGame || !findedUser) {
-        return {
-          success: false,
-          message: 'Пользователь или игра не найдена',
-        };
+        throw new BadRequestException('Пользователь или игра не найдена');
+      }
+
+      if (findedGame.endTime) {
+        throw new BadRequestException('Игра уже завершена');
       }
 
       const now = Date.now().toString();
       const diffSeconds = (Number(now) - Number(findedGame.startTime)) / 1000;
 
       if (diffSeconds > maxDiffSeconds) {
-        return {
-          success: false,
-          message: 'Прошло слишком много времени для завершения игры',
-        };
+        throw new BadRequestException(
+          'Прошло слишком много времени для завершения игры',
+        );
       }
 
       if (game.score > maxScoreInGame) {
-        return {
-          success: false,
-          message: 'Собрано слишком много КАКАХ',
-        };
+        throw new BadRequestException('Собрано слишком много КАКАХ');
       }
 
       await this.prismaService.userGame.update({
@@ -111,10 +106,7 @@ export class GameService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 }

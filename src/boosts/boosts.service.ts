@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BoostDto } from './dto';
@@ -26,10 +26,7 @@ export class BoostsService {
         })),
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -47,10 +44,7 @@ export class BoostsService {
       });
 
       if (userBoost.availableCount === 0) {
-        return {
-          success: false,
-          message: 'У вас нет доступных бустов',
-        };
+        throw new BadRequestException('У вас нет доступных бустов');
       }
 
       await this.prismaService.userBoost.update({
@@ -71,10 +65,7 @@ export class BoostsService {
           });
 
           if (findedUser.amountEnergy === 3) {
-            return {
-              success: false,
-              message: 'У вас уже полный запас энергии',
-            };
+            throw new BadRequestException('У вас уже полный запас энергии');
           }
 
           await this.prismaService.user.update({
@@ -95,10 +86,7 @@ export class BoostsService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 
@@ -115,10 +103,7 @@ export class BoostsService {
         !userBoost.boost.canImproved ||
         userBoost.level === userBoost.boost.maxLevel
       ) {
-        return {
-          success: false,
-          message: 'Нельзя улучшить буст',
-        };
+        throw new BadRequestException('Нельзя улучшить буст');
       }
 
       const findedUser = await this.prismaService.user.findUnique({
@@ -126,10 +111,7 @@ export class BoostsService {
       });
 
       if (findedUser.currentScore < userBoost.boost.levelPrice) {
-        return {
-          success: false,
-          message: 'Не хватает КАКАХ для улучшения',
-        };
+        throw new BadRequestException('Не хватает КАКАХ для улучшения');
       }
 
       await this.prismaService.user.update({
@@ -167,10 +149,7 @@ export class BoostsService {
         success: true,
       };
     } catch (e) {
-      return {
-        success: false,
-        message: 'Произошла непредвиденная ошибка',
-      };
+      throw new BadRequestException(e.message);
     }
   }
 }
