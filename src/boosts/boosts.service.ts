@@ -16,6 +16,9 @@ export class BoostsService {
         include: {
           boost: true,
         },
+        orderBy: {
+          id: 'asc',
+        },
       });
 
       return {
@@ -47,17 +50,6 @@ export class BoostsService {
         throw new BadRequestException('У вас нет доступных бустов');
       }
 
-      await this.prismaService.userBoost.update({
-        data: {
-          lastUseTimestamp: Date.now().toString(),
-          availableCount: userBoost.availableCount - 1,
-        },
-        where: {
-          id: userBoost.id,
-          userId: user.id,
-        },
-      });
-
       switch (userBoost.boost.slug) {
         case 'energy': {
           const findedUser = await this.prismaService.user.findUnique({
@@ -81,6 +73,17 @@ export class BoostsService {
           break;
         }
       }
+
+      await this.prismaService.userBoost.update({
+        data: {
+          lastUseTimestamp: Date.now().toString(),
+          availableCount: userBoost.availableCount - 1,
+        },
+        where: {
+          id: userBoost.id,
+          userId: user.id,
+        },
+      });
 
       return {
         success: true,
