@@ -29,6 +29,9 @@ export class GameService {
           where: { userId: user.id },
           data: {
             amountEnergy: findedUser.amountEnergy - 1,
+            useEneryTimestamp: findedUser.useEneryTimestamp
+              ? findedUser.useEneryTimestamp
+              : Date.now().toString(),
           },
         });
       }

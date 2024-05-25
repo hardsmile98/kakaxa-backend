@@ -11,6 +11,11 @@ export class UsersController {
     return this.usersService.getProfile(user, query.refCode);
   }
 
+  @Get('/checkEnergy')
+  checkEnergy(@GetUser() user: TgUser) {
+    return this.usersService.checkEnergy(user);
+  }
+
   @Get('/top')
   getLeadboard(@GetUser() user: TgUser) {
     return this.usersService.getLeadboard(user);

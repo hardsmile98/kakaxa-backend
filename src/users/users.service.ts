@@ -7,6 +7,75 @@ import { generate } from 'short-uuid';
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
+  ENERGY_RECOVERY_TIME_SECONDS = 60 * 60 * 8;
+  BONUS_FOR_INVITE = 100;
+  MAX_AMOUNT_ENERGY = 3;
+
+  async checkEnergy(user: TgUser) {
+    try {
+      const findedUser = await this.prismaService.user.findUnique({
+        where: { userId: user.id },
+      });
+
+      if (findedUser.amountEnergy === this.MAX_AMOUNT_ENERGY) {
+        return {
+          success: true,
+          recovery: false,
+        };
+      }
+
+      const secondsLeft = Math.round(
+        (Date.now() - Number(findedUser.useEneryTimestamp)) / 1000,
+      );
+
+      const recoveryEnergyCount = Math.floor(
+        secondsLeft / this.ENERGY_RECOVERY_TIME_SECONDS,
+      );
+
+      if (recoveryEnergyCount === 0) {
+        return {
+          success: true,
+          recovery: false,
+        };
+      }
+
+      if (recoveryEnergyCount >= this.MAX_AMOUNT_ENERGY) {
+        await this.prismaService.user.update({
+          where: {
+            userId: findedUser.userId,
+          },
+          data: {
+            amountEnergy: this.MAX_AMOUNT_ENERGY,
+            useEneryTimestamp: null,
+          },
+        });
+      } else {
+        const newTimestamp =
+          Number(findedUser.useEneryTimestamp) +
+          recoveryEnergyCount * this.ENERGY_RECOVERY_TIME_SECONDS * 1_000;
+
+        const newEnergy = findedUser.amountEnergy + recoveryEnergyCount;
+
+        await this.prismaService.user.update({
+          where: {
+            userId: findedUser.userId,
+          },
+          data: {
+            amountEnergy: newEnergy,
+            useEneryTimestamp: newTimestamp.toString(),
+          },
+        });
+      }
+
+      return {
+        success: true,
+        recovery: true,
+      };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
   async getProfile(user: TgUser, refCode?: string) {
     try {
       const findedUser = await this.prismaService.user.findUnique({
@@ -19,14 +88,20 @@ export class UsersService {
         return {
           success: true,
           newUser: true,
-          user: newUser,
+          user: {
+            ...newUser,
+            energyRecoveryTimeSeconds: this.ENERGY_RECOVERY_TIME_SECONDS,
+          },
         };
       }
 
       return {
         success: true,
         newUser: false,
-        user: findedUser,
+        user: {
+          ...findedUser,
+          energyRecoveryTimeSeconds: this.ENERGY_RECOVERY_TIME_SECONDS,
+        },
       };
     } catch (e) {
       throw new BadRequestException(e.message);
@@ -92,7 +167,7 @@ export class UsersService {
     });
 
     if (findedUser) {
-      const bonusForInvite = 100;
+      const bonusForInvite = this.BONUS_FOR_INVITE;
 
       await this.prismaService.user.update({
         where: {

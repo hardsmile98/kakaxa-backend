@@ -76,7 +76,9 @@ export class BoostsService {
 
       await this.prismaService.userBoost.update({
         data: {
-          lastUseTimestamp: Date.now().toString(),
+          useTimestamp: userBoost.useTimestamp
+            ? userBoost.useTimestamp
+            : Date.now().toString(),
           availableCount: userBoost.availableCount - 1,
         },
         where: {
