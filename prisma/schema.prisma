@@ -13,7 +13,6 @@ model User {
   username                String      @default("")
   amountEnergy            Int         @default(3)
   useEneryTimestamp       String?     @db.VarChar(32)
-  recoveryEnergyTimestamp String?     @db.VarChar(32)
   gameTime                Int         @default(60)
   allScore                Int         @default(0)
   currentScore            Int         @default(0)
@@ -53,7 +52,6 @@ model UserBoost {
   level             Int     @default(0)
   availableCount    Int     @default(1)
   useTimestamp      String? @db.VarChar(32)
-  recoveryTimestamp String? @db.VarChar(32)
 }
 
 enum BoostType {
