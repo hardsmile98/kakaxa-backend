@@ -53,6 +53,10 @@ export const GetUser = createParamDecorator(
 
     const telegramData = request.headers['x-telegram-data'];
 
+    if (!telegramData) {
+      throw new UnauthorizedException('User is unauthorized');
+    }
+
     try {
       const data = transformInitData(telegramData);
 
