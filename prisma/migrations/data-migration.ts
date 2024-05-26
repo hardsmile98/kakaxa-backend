@@ -21,6 +21,7 @@ const addBoosts = async () => {
           'Пожирает все на своем пути в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай КАКАХИ',
         allCount: 2,
         type: 'daily',
+        recoverySeconds: 12 * 60 * 60,
       },
       {
         title: 'Энергия',
@@ -32,6 +33,7 @@ const addBoosts = async () => {
         levelPrice: 300,
         maxLevel: 10,
         canImproved: true,
+        recoverySeconds: 4 * 60 * 60,
       },
     ],
   });

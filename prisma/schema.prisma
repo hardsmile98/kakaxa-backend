@@ -8,22 +8,22 @@ datasource db {
 }
 
 model User {
-  userId                  BigInt      @id @unique
-  name                    String      @default("")
-  username                String      @default("")
-  amountEnergy            Int         @default(3)
-  useEneryTimestamp       String?     @db.VarChar(32)
-  gameTime                Int         @default(60)
-  allScore                Int         @default(0)
-  currentScore            Int         @default(0)
-  leadboardScore          Int         @default(0)
-  skin                    String      @default("default")
-  amountNft               Int         @default(0)
-  userTasks               UserTask[]
-  inviteCode              String      @unique @db.VarChar(32)
-  refCode                 String?     @db.VarChar(32)
-  userBoosts              UserBoost[]
-  userGames               UserGame[]
+  userId            BigInt      @id @unique
+  name              String      @default("")
+  username          String      @default("")
+  amountEnergy      Int         @default(3)
+  useEneryTimestamp String?     @db.VarChar(32)
+  gameTime          Int         @default(60)
+  allScore          Int         @default(0)
+  currentScore      Int         @default(0)
+  leadboardScore    Int         @default(0)
+  skin              String      @default("default")
+  amountNft         Int         @default(0)
+  userTasks         UserTask[]
+  inviteCode        String      @unique @db.VarChar(32)
+  refCode           String?     @db.VarChar(32)
+  userBoosts        UserBoost[]
+  userGames         UserGame[]
 }
 
 model UserTask {
@@ -44,14 +44,14 @@ model Task {
 }
 
 model UserBoost {
-  id                Int     @id @default(autoincrement())
-  user              User?   @relation(fields: [userId], references: [userId])
-  userId            BigInt?
-  boost             Boost?  @relation(fields: [boostId], references: [id])
-  boostId           Int?
-  level             Int     @default(0)
-  availableCount    Int     @default(1)
-  useTimestamp      String? @db.VarChar(32)
+  id             Int     @id @default(autoincrement())
+  user           User?   @relation(fields: [userId], references: [userId])
+  userId         BigInt?
+  boost          Boost?  @relation(fields: [boostId], references: [id])
+  boostId        Int?
+  level          Int     @default(0)
+  availableCount Int     @default(1)
+  useTimestamp   String? @db.VarChar(32)
 }
 
 enum BoostType {
@@ -60,17 +60,18 @@ enum BoostType {
 }
 
 model Boost {
-  id           Int         @id @default(autoincrement())
-  title        String      @default("")
-  slug         String      @unique @default("") @db.VarChar(64)
-  description  String      @default("")
-  type         BoostType   @default(default)
-  improveTitle String      @default("")
-  allCount     Int         @default(1)
-  userBoost    UserBoost[]
-  levelPrice   Int         @default(0)
-  maxLevel     Int         @default(0)
-  canImproved  Boolean     @default(false)
+  id              Int         @id @default(autoincrement())
+  title           String      @default("")
+  slug            String      @unique @default("") @db.VarChar(64)
+  description     String      @default("")
+  type            BoostType   @default(default)
+  improveTitle    String      @default("")
+  allCount        Int         @default(1)
+  userBoost       UserBoost[]
+  levelPrice      Int         @default(0)
+  maxLevel        Int         @default(0)
+  canImproved     Boolean     @default(false)
+  recoverySeconds Int         @default(0)
 }
 
 model UserGame {
