@@ -36,9 +36,11 @@ const transformInitData = (telegramInitData: string) => {
 
   const user = JSON.parse(data.user) as TgUserData;
 
+  const refCode = data.start_param?.split('_')?.[1];
+
   return {
     ...user,
-    refCode: data.start_param,
+    refCode,
   };
 };
 
