@@ -65,7 +65,7 @@ export class BoostsService {
 
           return {
             id: boost.id,
-            newUseTimestamp,
+            newUseTimestamp: newUseTimestamp.toString(),
             newAvailableCount,
           };
         })
@@ -88,7 +88,7 @@ export class BoostsService {
               id: boost.id,
             },
             data: {
-              useTimestamp: boost.newUseTimestamp.toString(),
+              useTimestamp: boost.newUseTimestamp,
               availableCount: boost.newAvailableCount,
             },
           });
