@@ -9,7 +9,7 @@ const {
   env: { TELEGRAM_TOKEN },
 } = process;
 
-export type TgUser = {
+export type TgUserData = {
   id: bigint;
   first_name: string;
   last_name: string;
@@ -17,12 +17,28 @@ export type TgUser = {
   language_code: string;
 };
 
+export type TgUser = TgUserData & {
+  refCode?: string;
+};
+
+type TgData = {
+  query_id: string;
+  user: string;
+  auth_date: string;
+  hash: string;
+  start_param?: string;
+};
+
 const transformInitData = (telegramInitData: string) => {
-  const data = Object.fromEntries(new URLSearchParams(telegramInitData));
+  const data = Object.fromEntries(
+    new URLSearchParams(telegramInitData),
+  ) as TgData;
+
+  const user = JSON.parse(data.user) as TgUserData;
 
   return {
-    ...data,
-    user: JSON.parse(data.user),
+    ...user,
+    refCode: data.start_param,
   };
 };
 
@@ -58,15 +74,15 @@ export const GetUser = createParamDecorator(
     }
 
     try {
-      const data = transformInitData(telegramData);
-
       const isVerify = verifyTelegramWebAppData(telegramData);
 
       if (!isVerify) {
         throw new UnauthorizedException('User is unauthorized');
       }
 
-      return data.user as TgUser;
+      const user = transformInitData(telegramData);
+
+      return user;
     } catch (error) {
       throw new UnauthorizedException('User is unauthorized');
     }

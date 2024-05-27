@@ -76,14 +76,14 @@ export class UsersService {
     }
   }
 
-  async getProfile(user: TgUser, refCode?: string) {
+  async getProfile(user: TgUser) {
     try {
       const findedUser = await this.prismaService.user.findUnique({
         where: { userId: user.id },
       });
 
       if (!findedUser) {
-        const newUser = await this.createUser(user, refCode);
+        const newUser = await this.createUser(user);
 
         return {
           success: true,
@@ -108,9 +108,9 @@ export class UsersService {
     }
   }
 
-  async createUser(user: TgUser, refCode?: string) {
-    if (refCode) {
-      await this.checkRefCode(refCode);
+  async createUser(user: TgUser) {
+    if (user.refCode) {
+      await this.checkRefCode(user.refCode);
     }
 
     const inviteCode = generate();
@@ -136,7 +136,7 @@ export class UsersService {
         name: user.first_name,
         username: user.username,
         inviteCode,
-        refCode,
+        refCode: user.refCode,
         userBoosts: {
           createMany: {
             data: boosts.map(({ id, slug }) => ({

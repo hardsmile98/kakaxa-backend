@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { GetUser, TgUser } from 'src/global/decorator';
 
@@ -7,8 +7,8 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get('/profile')
-  getProfile(@GetUser() user: TgUser, @Query() query: { refCode?: string }) {
-    return this.usersService.getProfile(user, query.refCode);
+  getProfile(@GetUser() user: TgUser) {
+    return this.usersService.getProfile(user);
   }
 
   @Get('/checkEnergy')
