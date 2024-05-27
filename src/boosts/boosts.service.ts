@@ -21,9 +21,95 @@ export class BoostsService {
         },
       });
 
+      const isRecovery = boosts.some((boost) => !!boost.useTimestamp);
+
+      if (!isRecovery) {
+        return {
+          success: true,
+          boosts: boosts.map(({ boost, ...rest }) => ({
+            ...boost,
+            ...rest,
+          })),
+        };
+      }
+
+      const boostsFiltered = boosts.filter((boost) => !!boost.useTimestamp);
+
+      const newBoosts = boostsFiltered
+        .map((boost) => {
+          const secondsLeft = Math.round(
+            (Date.now() - Number(boost.useTimestamp)) / 1000,
+          );
+
+          const recoveryCount = Math.floor(
+            secondsLeft / boost.boost.recoverySeconds,
+          );
+
+          if (recoveryCount === 0) {
+            return null;
+          }
+
+          if (recoveryCount >= boost.boost.allCount) {
+            return {
+              id: boost.id,
+              newUseTimestamp: null,
+              newAvailableCount: boost.boost.allCount,
+            };
+          }
+
+          const newUseTimestamp =
+            Number(boost.useTimestamp) +
+            recoveryCount * boost.boost.recoverySeconds * 1_000;
+
+          const newAvailableCount = boost.availableCount + recoveryCount;
+
+          return {
+            id: boost.id,
+            newUseTimestamp,
+            newAvailableCount,
+          };
+        })
+        .filter(Boolean);
+
+      if (newBoosts.length === 0) {
+        return {
+          success: true,
+          boosts: boosts.map(({ boost, ...rest }) => ({
+            ...boost,
+            ...rest,
+          })),
+        };
+      }
+
+      await Promise.all(
+        newBoosts.map((boost) => {
+          return this.prismaService.userBoost.update({
+            where: {
+              id: boost.id,
+            },
+            data: {
+              useTimestamp: boost.newUseTimestamp.toString(),
+              availableCount: boost.newAvailableCount,
+            },
+          });
+        }),
+      );
+
+      const boostsUpdated = await this.prismaService.userBoost.findMany({
+        where: {
+          userId: user.id,
+        },
+        include: {
+          boost: true,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
+
       return {
         success: true,
-        boosts: boosts.map(({ boost, ...rest }) => ({
+        boosts: boostsUpdated.map(({ boost, ...rest }) => ({
           ...boost,
           ...rest,
         })),
