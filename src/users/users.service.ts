@@ -319,6 +319,7 @@ export class UsersService {
 
       return {
         bonus,
+        nftCount,
         success: true,
       };
     } catch (e) {
