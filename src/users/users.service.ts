@@ -160,6 +160,14 @@ export class UsersService {
       },
     });
 
+    await this.prismaService.userScore.create({
+      data: {
+        userId: user.id,
+        count: 0,
+        type: 'increase',
+      },
+    });
+
     delete newUser.userBoosts;
     delete newUser.userTasks;
 
@@ -259,8 +267,8 @@ export class UsersService {
       );
 
       return {
-        top: top100,
         position: position,
+        top: top100,
         success: true,
       };
     } catch (e) {
