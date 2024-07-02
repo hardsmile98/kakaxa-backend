@@ -169,11 +169,11 @@ export class UsersService {
     if (findedUser) {
       const bonusForInvite = this.BONUS_FOR_INVITE;
 
-      await this.addScore(user, bonusForInvite);
+      await this.increaseScore(user, bonusForInvite);
     }
   }
 
-  async addScore(user: TgUser, count: number) {
+  async decreaseScore(user: TgUser, count: number) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { userId: user.id },
     });
@@ -181,7 +181,7 @@ export class UsersService {
     await this.prismaService.user.update({
       where: { userId: user.id },
       data: {
-        score: findedUser.score + count,
+        score: findedUser.score - count,
       },
     });
 
@@ -196,28 +196,70 @@ export class UsersService {
     return true;
   }
 
+  async increaseScore(user: TgUser, count: number) {
+    const findedUser = await this.prismaService.user.findFirst({
+      where: { userId: user.id },
+    });
+
+    await this.prismaService.user.update({
+      where: { userId: user.id },
+      data: {
+        score: findedUser.score + count,
+      },
+    });
+
+    await this.prismaService.userScore.create({
+      data: {
+        userId: user.id,
+        type: 'increase',
+        count: count,
+      },
+    });
+
+    return true;
+  }
+
   async getLeadboard(user: TgUser) {
     try {
-      const top100 = await this.prismaService.user.findMany({
-        take: 100,
-        orderBy: [{ score: 'desc' }],
-        select: {
-          userId: true,
-          score: true,
-          name: true,
-          username: true,
-        },
-      });
+      const top100 = await this.prismaService.$queryRawUnsafe<
+        {
+          userId: number;
+          score: number;
+          name: string;
+          username: string;
+        }[]
+      >(
+        `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
+        FROM public."UserScore" t
+        INNER JOIN public."User" u ON t."userId" = u."userId"
+        WHERE t.type = 'increase'
+        GROUP BY t."userId", u.name, u.username
+        ORDER BY score DESC
+        LIMIT 100;`,
+      );
+
+      const [position] = await this.prismaService.$queryRawUnsafe<
+        {
+          score: number;
+          index: number;
+        }[]
+      >(
+        `SELECT index, score 
+        FROM (
+          SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
+          FROM public."UserScore" 
+          WHERE type = 'increase' GROUP BY "userId"
+        ) as t
+        WHERE t."userId" = ${user.id}`,
+      );
 
       return {
         top: top100,
-        position: {
-          index: 0,
-          score: 0,
-        },
+        position: position,
         success: true,
       };
     } catch (e) {
+      console.log(e);
       throw new BadRequestException(e.message);
     }
   }

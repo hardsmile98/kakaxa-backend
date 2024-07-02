@@ -2,10 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BoostDto } from './dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class BoostsService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private usersService: UsersService,
+  ) {}
 
   async getBoosts(user: TgUser) {
     try {
@@ -205,20 +209,7 @@ export class BoostsService {
         throw new BadRequestException('Не хватает КАКАХ для улучшения');
       }
 
-      await this.prismaService.user.update({
-        where: { userId: user.id },
-        data: {
-          score: findedUser.score - userBoost.boost.levelPrice,
-        },
-      });
-
-      await this.prismaService.userScore.create({
-        data: {
-          userId: user.id,
-          type: 'descrease',
-          count: userBoost.boost.levelPrice,
-        },
-      });
+      await this.usersService.decreaseScore(user, userBoost.boost.levelPrice);
 
       switch (userBoost.boost.slug) {
         case 'energy': {
