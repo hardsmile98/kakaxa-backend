@@ -4,12 +4,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { GameDto, StartGameDto } from './dto';
 import { BoostsService } from 'src/boosts/boosts.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GameService {
   constructor(
     private prismaService: PrismaService,
     private boostsService: BoostsService,
+    private usersService: UsersService,
   ) {}
 
   async startGame(user: TgUser, dto: StartGameDto) {
@@ -104,14 +106,7 @@ export class GameService {
         },
       });
 
-      await this.prismaService.user.update({
-        where: { userId: user.id },
-        data: {
-          allScore: findedUser.allScore + game.score,
-          leadboardScore: findedUser.leadboardScore + game.score,
-          currentScore: findedUser.currentScore + game.score,
-        },
-      });
+      await this.usersService.addScore(user, game.score);
 
       return {
         success: true,

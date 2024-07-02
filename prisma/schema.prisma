@@ -14,41 +14,43 @@ model User {
   amountEnergy      Int         @default(3)
   useEneryTimestamp String?     @db.VarChar(32)
   gameTime          Int         @default(60)
-  allScore          Int         @default(0)
-  currentScore      Int         @default(0)
-  leadboardScore    Int         @default(0)
+  score             Float       @default(0)
   skin              String      @default("default")
   amountNft         Int         @default(0)
+  bonusForNft       Float       @default(0.1)
+  maxBonusForNft    Float       @default(0.5)
   userTasks         UserTask[]
   inviteCode        String      @unique @db.VarChar(32)
   refCode           String?     @db.VarChar(32)
   userBoosts        UserBoost[]
   userGames         UserGame[]
+  userScores        UserScore[]
+  createdAt         DateTime    @default(now())
 }
 
 model UserTask {
   id        Int     @id @default(autoincrement())
-  user      User?   @relation(fields: [userId], references: [userId])
-  userId    BigInt?
-  task      Task?   @relation(fields: [taskId], references: [id])
-  taskId    Int?
+  user      User    @relation(fields: [userId], references: [userId])
+  userId    BigInt
+  task      Task    @relation(fields: [taskId], references: [id])
+  taskId    Int
   completed Boolean @default(false)
 }
 
 model Task {
   id        Int        @id @default(autoincrement())
   title     String     @default("")
-  bonus     Int        @default(0)
+  bonus     Float        @default(0)
   link      String     @default("")
   userTasks UserTask[]
 }
 
 model UserBoost {
   id             Int     @id @default(autoincrement())
-  user           User?   @relation(fields: [userId], references: [userId])
-  userId         BigInt?
-  boost          Boost?  @relation(fields: [boostId], references: [id])
-  boostId        Int?
+  user           User    @relation(fields: [userId], references: [userId])
+  userId         BigInt
+  boost          Boost   @relation(fields: [boostId], references: [id])
+  boostId        Int
   level          Int     @default(0)
   availableCount Int     @default(1)
   useTimestamp   String? @db.VarChar(32)
@@ -68,18 +70,33 @@ model Boost {
   improveTitle    String      @default("")
   allCount        Int         @default(1)
   userBoost       UserBoost[]
-  levelPrice      Int         @default(0)
+  levelPrice      Float       @default(0)
   maxLevel        Int         @default(0)
   canImproved     Boolean     @default(false)
   recoverySeconds Int         @default(0)
 }
 
 model UserGame {
-  id        Int     @id @default(autoincrement())
-  user      User?   @relation(fields: [userId], references: [userId])
-  userId    BigInt?
-  hash      String  @unique @db.VarChar(64)
-  score     Int     @default(0)
-  startTime String? @db.VarChar(32)
-  endTime   String? @db.VarChar(32)
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [userId])
+  userId    BigInt
+  hash      String   @unique @db.VarChar(64)
+  score     Float    @default(0)
+  startTime String?  @db.VarChar(32)
+  endTime   String?  @db.VarChar(32)
+  createdAt DateTime @default(now())
+}
+
+enum TypeOfChange {
+  increase
+  descrease
+}
+
+model UserScore {
+  id        Int          @id @default(autoincrement())
+  user      User         @relation(fields: [userId], references: [userId])
+  userId    BigInt
+  count     Float
+  type      TypeOfChange
+  createdAt DateTime     @default(now())
 }

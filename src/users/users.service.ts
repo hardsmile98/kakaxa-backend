@@ -110,7 +110,7 @@ export class UsersService {
 
   async createUser(user: TgUser) {
     if (user.refCode) {
-      await this.checkRefCode(user.refCode);
+      await this.checkRefCode(user.refCode, user);
     }
 
     const inviteCode = generate();
@@ -161,7 +161,7 @@ export class UsersService {
     return newUser;
   }
 
-  async checkRefCode(refCode: string) {
+  async checkRefCode(refCode: string, user: TgUser) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { inviteCode: refCode },
     });
@@ -169,16 +169,7 @@ export class UsersService {
     if (findedUser) {
       const bonusForInvite = this.BONUS_FOR_INVITE;
 
-      await this.prismaService.user.update({
-        where: {
-          userId: findedUser.userId,
-        },
-        data: {
-          allScore: findedUser.allScore + bonusForInvite,
-          leadboardScore: findedUser.leadboardScore + bonusForInvite,
-          currentScore: findedUser.currentScore + bonusForInvite,
-        },
-      });
+      await this.addScore(user, bonusForInvite);
     }
   }
 
@@ -188,13 +179,17 @@ export class UsersService {
     });
 
     await this.prismaService.user.update({
-      where: {
-        userId: user.id,
-      },
+      where: { userId: user.id },
       data: {
-        allScore: findedUser.allScore + count,
-        leadboardScore: findedUser.leadboardScore + count,
-        currentScore: findedUser.currentScore + count,
+        score: findedUser.score + count,
+      },
+    });
+
+    await this.prismaService.userScore.create({
+      data: {
+        userId: user.id,
+        type: 'descrease',
+        count: count,
       },
     });
 
@@ -205,30 +200,21 @@ export class UsersService {
     try {
       const top100 = await this.prismaService.user.findMany({
         take: 100,
-        orderBy: [{ leadboardScore: 'desc' }],
+        orderBy: [{ score: 'desc' }],
         select: {
           userId: true,
-          leadboardScore: true,
+          score: true,
           name: true,
           username: true,
         },
       });
 
-      const [row] = await this.prismaService.$queryRawUnsafe<
-        {
-          index: number;
-          leadboardScore: number;
-        }[]
-      >(
-        `SELECT index, "leadboardScore" from 
-        (SELECT row_number() OVER w as index, "userId", "leadboardScore" 
-        FROM public."User" WINDOW w AS (ORDER BY "leadboardScore" DESC))
-        u where u."userId" = ${user.id};`,
-      );
-
       return {
         top: top100,
-        position: row,
+        position: {
+          index: 0,
+          score: 0,
+        },
         success: true,
       };
     } catch (e) {

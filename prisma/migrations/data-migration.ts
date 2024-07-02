@@ -40,8 +40,12 @@ const addBoosts = async () => {
 };
 
 async function main() {
-  await addTasks();
-  await addBoosts();
+  try {
+    await addTasks();
+    await addBoosts();
+  } catch (e) {
+    console.log('Ошибка data-migration: ', e.message);
+  }
 }
 
 main()

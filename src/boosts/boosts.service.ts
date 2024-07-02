@@ -201,14 +201,22 @@ export class BoostsService {
         where: { userId: user.id },
       });
 
-      if (findedUser.currentScore < userBoost.boost.levelPrice) {
+      if (findedUser.score < userBoost.boost.levelPrice) {
         throw new BadRequestException('Не хватает КАКАХ для улучшения');
       }
 
       await this.prismaService.user.update({
         where: { userId: user.id },
         data: {
-          currentScore: findedUser.currentScore - userBoost.boost.levelPrice,
+          score: findedUser.score - userBoost.boost.levelPrice,
+        },
+      });
+
+      await this.prismaService.userScore.create({
+        data: {
+          userId: user.id,
+          type: 'descrease',
+          count: userBoost.boost.levelPrice,
         },
       });
 
