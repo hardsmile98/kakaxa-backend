@@ -259,7 +259,6 @@ export class UsersService {
         success: true,
       };
     } catch (e) {
-      console.log(e);
       throw new BadRequestException(e.message);
     }
   }
