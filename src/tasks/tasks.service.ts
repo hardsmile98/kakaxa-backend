@@ -57,7 +57,7 @@ export class TasksService {
         throw new BadRequestException('Задание уже выполнено');
       }
 
-      await this.userService.addScore(user, userTask.task.bonus);
+      await this.userService.increaseScore(user, userTask.task.bonus);
 
       await this.prismaService.userTask.update({
         where: { id: task.taskId, userId: user.id },
