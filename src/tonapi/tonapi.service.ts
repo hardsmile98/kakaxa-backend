@@ -10,6 +10,8 @@ interface EnvironmentVariables {
 
 @Injectable()
 export class TonapiService {
+  topapiToken = this.configService.get('TONAPI_TOKEN');
+
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService<EnvironmentVariables>,
@@ -17,7 +19,6 @@ export class TonapiService {
 
   async getNftByAddress(address: string) {
     const collectionAddress = this.configService.get('NFT_COLLECTION_ADDRESS');
-    const topapiToken = this.configService.get('TONAPI_TOKEN');
 
     try {
       const data = await lastValueFrom(
@@ -29,8 +30,8 @@ export class TonapiService {
                 collection: collectionAddress,
               },
               headers: {
-                Authorization: topapiToken
-                  ? `Bearer ${topapiToken}`
+                Authorization: this.topapiToken
+                  ? `Bearer ${this.topapiToken}`
                   : undefined,
               },
             },
