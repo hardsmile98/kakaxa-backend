@@ -16,9 +16,6 @@ model User {
   gameTime          Int         @default(60)
   score             Float       @default(0)
   skin              String      @default("default")
-  amountNft         Int         @default(0)
-  bonusForNft       Float       @default(0.1)
-  maxBonusForNft    Float       @default(0.5)
   userTasks         UserTask[]
   inviteCode        String      @unique @db.VarChar(32)
   refCode           String?     @db.VarChar(32)
