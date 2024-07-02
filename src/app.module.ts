@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { BoostsModule } from './boosts/boosts.module';
 import { TasksModule } from './tasks/tasks.module';
 import { GameModule } from './game/game.module';
+import { TonapiModule } from './tonapi/tonapi.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GameModule } from './game/game.module';
     BoostsModule,
     TasksModule,
     GameModule,
+    TonapiModule,
   ],
 })
 export class AppModule {}

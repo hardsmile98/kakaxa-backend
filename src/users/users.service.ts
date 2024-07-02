@@ -2,10 +2,15 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generate } from 'short-uuid';
+import { NftQuery } from './dto';
+import { TonapiService } from 'src/tonapi/tonapi.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private tonapiService: TonapiService,
+  ) {}
 
   ENERGY_RECOVERY_TIME_SECONDS = 60 * 60 * 8;
   BONUS_FOR_INVITE = 100;
@@ -285,6 +290,35 @@ export class UsersService {
 
       return {
         referals,
+        success: true,
+      };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  async getNftBonus(nftQuery: NftQuery) {
+    const BONUS_FOR_NFT = 0.1;
+    const MAX_NFT_BONUS = 0.5;
+
+    try {
+      if (!nftQuery.address) {
+        return {
+          bonus: 0,
+          success: true,
+        };
+      }
+
+      const data = await this.tonapiService.getNftByAddress(nftQuery.address);
+
+      const nftCount = data?.nft_items?.length || 0;
+
+      const bonusForNft = nftCount * BONUS_FOR_NFT;
+
+      const bonus = bonusForNft > MAX_NFT_BONUS ? MAX_NFT_BONUS : bonusForNft;
+
+      return {
+        bonus,
         success: true,
       };
     } catch (e) {
