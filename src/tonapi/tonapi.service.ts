@@ -17,14 +17,36 @@ export class TonapiService {
     private configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  async getNftByAddress(address: string) {
+  async getNftByAddress(walletStateInit: string) {
     const collectionAddress = this.configService.get('NFT_COLLECTION_ADDRESS');
 
     try {
+      const walletData = await lastValueFrom(
+        this.httpService
+          .post<{ public_key: string; address: string }>(
+            `https://tonapi.io/v2/tonconnect/stateinit`,
+            {
+              state_init: walletStateInit,
+            },
+            {
+              headers: {
+                Authorization: this.topapiToken
+                  ? `Bearer ${this.topapiToken}`
+                  : undefined,
+              },
+            },
+          )
+          .pipe(map((res) => res.data)),
+      );
+
+      if (!walletData) {
+        return null;
+      }
+
       const data = await lastValueFrom(
         this.httpService
           .get<{ nft_items: Array<object> }>(
-            `https://tonapi.io/v2/accounts/${address}/nfts`,
+            `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
             {
               params: {
                 collection: collectionAddress,

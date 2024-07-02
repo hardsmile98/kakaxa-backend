@@ -310,14 +310,16 @@ export class UsersService {
     const MAX_NFT_BONUS = 0.5;
 
     try {
-      if (!nftQuery.address) {
+      if (!nftQuery.walletStateInit) {
         return {
           bonus: 0,
           success: true,
         };
       }
 
-      const data = await this.tonapiService.getNftByAddress(nftQuery.address);
+      const data = await this.tonapiService.getNftByAddress(
+        nftQuery.walletStateInit,
+      );
 
       const nftCount = data?.nft_items?.length || 0;
 
