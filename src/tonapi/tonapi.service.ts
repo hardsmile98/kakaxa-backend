@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
 
@@ -19,6 +19,10 @@ export class TonapiService {
 
   async getNftByAddress(walletStateInit: string) {
     const collectionAddress = this.configService.get('NFT_COLLECTION_ADDRESS');
+
+    if (!collectionAddress) {
+      throw new BadRequestException('Не заполнен адресс nft коллекции');
+    }
 
     try {
       const walletData = await lastValueFrom(
