@@ -61,8 +61,8 @@ export class GameService {
   }
 
   async endGame(user: TgUser, game: GameDto) {
-    const maxDiffSeconds = 120;
-    const maxScoreInGame = 500;
+    const maxDiffSeconds = 180; // Максимальная разница между стартом игры и заверщением
+    const maxScoreInGame = 300; // Максимальный счет за игру
 
     try {
       const findedGame = await this.prismaService.userGame.findUnique({
