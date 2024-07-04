@@ -146,7 +146,7 @@ export class UsersService {
           createMany: {
             data: boosts.map(({ id, slug }) => ({
               boostId: id,
-              availableCount: slug === 'devourer' ? 2 : 1,
+              availableCount: slug === 'magnit' ? 2 : 1,
             })),
           },
         },

@@ -15,10 +15,10 @@ const addBoosts = async () => {
   await prisma.boost.createMany({
     data: [
       {
-        title: 'Пожиратель',
-        slug: 'devourer',
+        title: 'Магнит',
+        slug: 'magnit',
         description:
-          'Пожирает все на своем пути в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай КАКАХИ',
+          'Притягивает все КАКАХИ в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай КАКАХИ',
         allCount: 2,
         type: 'daily',
         recoverySeconds: 12 * 60 * 60,
