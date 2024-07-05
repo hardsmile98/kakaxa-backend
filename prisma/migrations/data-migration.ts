@@ -18,7 +18,7 @@ const addBoosts = async () => {
         title: 'Магнит',
         slug: 'magnit',
         description:
-          'Притягивает все КАКАХИ в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай КАКАХИ',
+          'Притягивает все KKX POITNS в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай KKX POITNS',
         allCount: 2,
         type: 'daily',
         recoverySeconds: 12 * 60 * 60,
@@ -29,7 +29,7 @@ const addBoosts = async () => {
         type: 'daily',
         description: 'Восстанавливает 1 единицу энергии',
         improveTitle: 'Время игры +5 сек.',
-        allCount: 1,
+        allCount: 2,
         levelPrice: 300,
         maxLevel: 10,
         canImproved: true,

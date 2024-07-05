@@ -144,9 +144,9 @@ export class UsersService {
         refCode: user.refCode,
         userBoosts: {
           createMany: {
-            data: boosts.map(({ id, slug }) => ({
+            data: boosts.map(({ id }) => ({
               boostId: id,
-              availableCount: slug === 'magnit' ? 2 : 1,
+              availableCount: 2,
             })),
           },
         },

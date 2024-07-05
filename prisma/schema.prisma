@@ -13,7 +13,7 @@ model User {
   username          String      @default("")
   amountEnergy      Int         @default(3)
   useEneryTimestamp String?     @db.VarChar(32)
-  gameTime          Int         @default(60)
+  gameTime          Int         @default(40)
   score             Float       @default(0)
   skin              String      @default("default")
   userTasks         UserTask[]
