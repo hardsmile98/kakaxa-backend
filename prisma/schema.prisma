@@ -34,11 +34,17 @@ model UserTask {
   completed Boolean @default(false)
 }
 
+enum LinkType {
+  telegram
+  other
+}
+
 model Task {
   id        Int        @id @default(autoincrement())
   title     String     @default("")
-  bonus     Float        @default(0)
+  bonus     Float      @default(0)
   link      String     @default("")
+  linkType  LinkType   @default(other)
   userTasks UserTask[]
 }
 
