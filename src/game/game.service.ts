@@ -106,7 +106,7 @@ export class GameService {
         },
       });
 
-      await this.usersService.increaseScore(user, game.score);
+      await this.usersService.increaseScore(user.id, game.score);
 
       return {
         success: true,

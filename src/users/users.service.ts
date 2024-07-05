@@ -115,7 +115,7 @@ export class UsersService {
 
   async createUser(user: TgUser) {
     if (user.refCode) {
-      await this.checkRefCode(user.refCode, user);
+      await this.checkRefCode(user.refCode);
     }
 
     const inviteCode = generate();
@@ -174,7 +174,7 @@ export class UsersService {
     return newUser;
   }
 
-  async checkRefCode(refCode: string, user: TgUser) {
+  async checkRefCode(refCode: string) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { inviteCode: refCode },
     });
@@ -182,7 +182,7 @@ export class UsersService {
     if (findedUser) {
       const bonusForInvite = this.BONUS_FOR_INVITE;
 
-      await this.increaseScore(user, bonusForInvite);
+      await this.increaseScore(findedUser.userId, bonusForInvite);
     }
   }
 
@@ -209,13 +209,17 @@ export class UsersService {
     return true;
   }
 
-  async increaseScore(user: TgUser, count: number) {
+  async increaseScore(userId: bigint, count: number) {
     const findedUser = await this.prismaService.user.findFirst({
-      where: { userId: user.id },
+      where: { userId: userId },
     });
 
+    if (!findedUser) {
+      return false;
+    }
+
     await this.prismaService.user.update({
-      where: { userId: user.id },
+      where: { userId: findedUser.userId },
       data: {
         score: findedUser.score + count,
       },
@@ -223,7 +227,7 @@ export class UsersService {
 
     await this.prismaService.userScore.create({
       data: {
-        userId: user.id,
+        userId: findedUser.userId,
         type: 'increase',
         count: count,
       },
