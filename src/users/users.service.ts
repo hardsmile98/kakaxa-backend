@@ -306,13 +306,18 @@ export class UsersService {
   }
 
   async getNftBonus(nftQuery: NftQuery) {
-    const BONUS_FOR_NFT = 0.1;
+    const BONUS_FOR_NFT = 0.05;
     const MAX_NFT_BONUS = 0.5;
+    const MAX_NFT_COUNT = 10;
 
     try {
       if (!nftQuery.walletStateInit) {
         return {
+          bonusForNft: BONUS_FOR_NFT,
+          maxNftBonus: MAX_NFT_BONUS,
           bonus: 0,
+          nftCount: 0,
+          maxNftCount: MAX_NFT_COUNT,
           success: true,
         };
       }
@@ -328,6 +333,9 @@ export class UsersService {
       const bonus = bonusForNft > MAX_NFT_BONUS ? MAX_NFT_BONUS : bonusForNft;
 
       return {
+        bonusForNft: BONUS_FOR_NFT,
+        maxNftBonus: MAX_NFT_BONUS,
+        maxNftCount: MAX_NFT_COUNT,
         bonus,
         nftCount,
         success: true,
