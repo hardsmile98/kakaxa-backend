@@ -12,7 +12,7 @@ const addTasks = async () => {
         link: 'https://t.me/kakaxa_coin',
       },
       {
-        title: 'Подписка на X',
+        title: 'Подписка на X (Twitter)',
         bonus: 100,
         link: 'https://x.com/kakaxa_ton',
       },
