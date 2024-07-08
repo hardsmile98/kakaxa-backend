@@ -5,8 +5,23 @@ const prisma = new PrismaClient();
 const addTasks = async () => {
   await prisma.task.createMany({
     data: [
-      { title: 'Подписка на канал', bonus: 100, link: 'https://www.google.ru' },
-      { title: 'Подписка на чат', bonus: 100, link: 'https://www.google.ru' },
+      {
+        title: 'Подписка на основной канал',
+        bonus: 100,
+        linkType: 'telegram',
+        link: 'https://t.me/kakaxa_coin',
+      },
+      {
+        title: 'Подписка на X',
+        bonus: 100,
+        link: 'https://x.com/kakaxa_ton',
+      },
+      {
+        title: 'Подписка на EN CHAT',
+        bonus: 100,
+        linkType: 'telegram',
+        link: 'https://t.me/kakaxa_ton_en',
+      },
     ],
   });
 };
