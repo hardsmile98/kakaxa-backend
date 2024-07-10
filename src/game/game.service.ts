@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameDto, StartGameDto } from './dto';
 import { BoostsService } from 'src/boosts/boosts.service';
 import { UsersService } from 'src/users/users.service';
+import { settings } from 'src/global/constants';
 
 @Injectable()
 export class GameService {
@@ -24,6 +25,10 @@ export class GameService {
         });
 
         if (findedUser.amountEnergy <= 0) {
+          throw new BadRequestException('Недостаточно энергии для старта игры');
+        }
+
+        if (findedUser.amountEnergy > settings.MAX_ENERGY) {
           throw new BadRequestException('Недостаточно энергии для старта игры');
         }
 

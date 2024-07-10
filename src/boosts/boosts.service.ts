@@ -3,6 +3,7 @@ import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BoostDto } from './dto';
 import { UsersService } from 'src/users/users.service';
+import { settings } from 'src/global/constants';
 
 @Injectable()
 export class BoostsService {
@@ -126,7 +127,7 @@ export class BoostsService {
   async applyBoost(user: TgUser, boost: BoostDto) {
     try {
       const userBoost = await this.prismaService.userBoost.findFirst({
-        where: { id: boost.boostId },
+        where: { id: boost.boostId, userId: user.id },
         include: {
           boost: {
             select: {
@@ -135,6 +136,10 @@ export class BoostsService {
           },
         },
       });
+
+      if (!userBoost) {
+        throw new BadRequestException('Такого буста не существует');
+      }
 
       if (userBoost.availableCount === 0) {
         throw new BadRequestException('У вас нет доступных бустов');
@@ -150,10 +155,15 @@ export class BoostsService {
             throw new BadRequestException('У вас уже полный запас энергии');
           }
 
+          const newEnergy = findedUser.amountEnergy + 1;
+
           await this.prismaService.user.update({
             where: { userId: user.id },
             data: {
-              amountEnergy: findedUser.amountEnergy + 1,
+              amountEnergy:
+                newEnergy >= settings.MAX_ENERGY
+                  ? settings.MAX_ENERGY
+                  : newEnergy,
             },
           });
 
@@ -193,6 +203,10 @@ export class BoostsService {
           boost: true,
         },
       });
+
+      if (!userBoost) {
+        throw new BadRequestException('Такого буста не существует');
+      }
 
       if (
         !userBoost.boost.canImproved ||
