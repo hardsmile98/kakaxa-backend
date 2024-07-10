@@ -202,6 +202,10 @@ export class BoostsService {
         },
       });
 
+      if (!userBoost) {
+        throw new BadRequestException('Такого буста не существует');
+      }
+
       if (
         !userBoost.boost.canImproved ||
         userBoost.level === userBoost.boost.maxLevel
