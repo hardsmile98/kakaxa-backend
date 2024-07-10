@@ -330,7 +330,12 @@ export class UsersService {
         nftQuery.walletStateInit,
       );
 
-      const nftCount = data?.nft_items?.length || 0;
+      let nftCount = 0;
+
+      if (data) {
+        nftCount =
+          data.world?.length + data.burn?.length + data.shittyKing?.length;
+      }
 
       const bonusForNft = nftCount * BONUS_FOR_NFT;
 
