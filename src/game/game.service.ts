@@ -93,12 +93,6 @@ export class GameService {
       const now = Date.now().toString();
       const diffSeconds = (Number(now) - Number(findedGame.startTime)) / 1000;
 
-      if (diffSeconds < findedUser.gameTime - 5) {
-        throw new BadRequestException(
-          'Прошло слишком мало времени для завершения игры',
-        );
-      }
-
       if (diffSeconds > maxDiffSeconds) {
         throw new BadRequestException(
           'Прошло слишком много времени для завершения игры',
