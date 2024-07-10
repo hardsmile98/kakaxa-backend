@@ -343,7 +343,7 @@ export class UsersService {
         bonusForNft: BONUS_FOR_NFT,
         maxNftBonus: MAX_NFT_BONUS,
         maxNftCount: MAX_NFT_COUNT,
-        bonus,
+        bonus: Number(bonus.toFixed(3)),
         nftCount,
         success: true,
       };
