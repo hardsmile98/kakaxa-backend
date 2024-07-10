@@ -53,6 +53,10 @@ export class TasksService {
         },
       });
 
+      if (!userTask) {
+        throw new BadRequestException('Такого задания нет!');
+      }
+
       if (userTask.completed) {
         throw new BadRequestException('Задание уже выполнено');
       }

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { generate } from 'short-uuid';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
+import { settings } from 'src/global/constants';
 
 @Injectable()
 export class UsersService {
@@ -12,17 +13,13 @@ export class UsersService {
     private tonapiService: TonapiService,
   ) {}
 
-  ENERGY_RECOVERY_TIME_SECONDS = 60 * 60 * 8;
-  BONUS_FOR_INVITE = 100;
-  MAX_AMOUNT_ENERGY = 3;
-
   async checkEnergy(user: TgUser) {
     try {
       const findedUser = await this.prismaService.user.findUnique({
         where: { userId: user.id },
       });
 
-      if (findedUser.amountEnergy === this.MAX_AMOUNT_ENERGY) {
+      if (findedUser.amountEnergy === settings.MAX_ENERGY) {
         return {
           success: true,
           recovery: false,
@@ -34,7 +31,7 @@ export class UsersService {
       );
 
       const recoveryEnergyCount = Math.floor(
-        secondsLeft / this.ENERGY_RECOVERY_TIME_SECONDS,
+        secondsLeft / settings.ENERGY_RECOVERY_TIME_SECONDS,
       );
 
       if (recoveryEnergyCount === 0) {
@@ -44,20 +41,20 @@ export class UsersService {
         };
       }
 
-      if (recoveryEnergyCount >= this.MAX_AMOUNT_ENERGY) {
+      if (recoveryEnergyCount >= settings.MAX_ENERGY) {
         await this.prismaService.user.update({
           where: {
             userId: findedUser.userId,
           },
           data: {
-            amountEnergy: this.MAX_AMOUNT_ENERGY,
+            amountEnergy: settings.MAX_ENERGY,
             useEneryTimestamp: null,
           },
         });
       } else {
         const newTimestamp =
           Number(findedUser.useEneryTimestamp) +
-          recoveryEnergyCount * this.ENERGY_RECOVERY_TIME_SECONDS * 1_000;
+          recoveryEnergyCount * settings.ENERGY_RECOVERY_TIME_SECONDS * 1_000;
 
         const newEnergy = findedUser.amountEnergy + recoveryEnergyCount;
 
@@ -95,7 +92,7 @@ export class UsersService {
           newUser: true,
           user: {
             ...newUser,
-            energyRecoveryTimeSeconds: this.ENERGY_RECOVERY_TIME_SECONDS,
+            energyRecoveryTimeSeconds: settings.ENERGY_RECOVERY_TIME_SECONDS,
           },
         };
       }
@@ -105,7 +102,7 @@ export class UsersService {
         newUser: false,
         user: {
           ...findedUser,
-          energyRecoveryTimeSeconds: this.ENERGY_RECOVERY_TIME_SECONDS,
+          energyRecoveryTimeSeconds: settings.ENERGY_RECOVERY_TIME_SECONDS,
         },
       };
     } catch (e) {
@@ -180,7 +177,7 @@ export class UsersService {
     });
 
     if (findedUser) {
-      const bonusForInvite = this.BONUS_FOR_INVITE;
+      const bonusForInvite = settings.BONUS_FOR_INVITE;
 
       await this.increaseScore(findedUser.userId, bonusForInvite);
     }
