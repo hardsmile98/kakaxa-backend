@@ -124,9 +124,11 @@ export class BoostsService {
   }
 
   async applyBoost(user: TgUser, boost: BoostDto) {
+    const MAX_ENERGY = 3;
+
     try {
       const userBoost = await this.prismaService.userBoost.findFirst({
-        where: { id: boost.boostId },
+        where: { id: boost.boostId, userId: user.id },
         include: {
           boost: {
             select: {
@@ -135,6 +137,10 @@ export class BoostsService {
           },
         },
       });
+
+      if (!userBoost) {
+        throw new BadRequestException('Такого буста не существует');
+      }
 
       if (userBoost.availableCount === 0) {
         throw new BadRequestException('У вас нет доступных бустов');
@@ -150,10 +156,12 @@ export class BoostsService {
             throw new BadRequestException('У вас уже полный запас энергии');
           }
 
+          const newEnergy = findedUser.amountEnergy + 1;
+
           await this.prismaService.user.update({
             where: { userId: user.id },
             data: {
-              amountEnergy: findedUser.amountEnergy + 1,
+              amountEnergy: newEnergy >= MAX_ENERGY ? MAX_ENERGY : newEnergy,
             },
           });
 
