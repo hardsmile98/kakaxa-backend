@@ -191,7 +191,7 @@ export class UsersService {
     await this.prismaService.user.update({
       where: { userId: user.id },
       data: {
-        score: findedUser.score - count,
+        score: Number((findedUser.score - count).toFixed(3)),
       },
     });
 
@@ -199,7 +199,7 @@ export class UsersService {
       data: {
         userId: user.id,
         type: 'descrease',
-        count: count,
+        count: Number(count.toFixed(3)),
       },
     });
 
@@ -218,7 +218,7 @@ export class UsersService {
     await this.prismaService.user.update({
       where: { userId: findedUser.userId },
       data: {
-        score: findedUser.score + count,
+        score: Number((findedUser.score + count).toFixed(3)),
       },
     });
 
@@ -226,7 +226,7 @@ export class UsersService {
       data: {
         userId: findedUser.userId,
         type: 'increase',
-        count: count,
+        count: Number(count.toFixed(3)),
       },
     });
 
