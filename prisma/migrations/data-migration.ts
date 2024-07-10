@@ -48,7 +48,7 @@ const addBoosts = async () => {
         levelPrice: 300,
         maxLevel: 10,
         canImproved: true,
-        recoverySeconds: 4 * 60 * 60,
+        recoverySeconds: 2 * 60 * 60,
       },
     ],
   });

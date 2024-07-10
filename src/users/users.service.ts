@@ -12,7 +12,7 @@ export class UsersService {
     private tonapiService: TonapiService,
   ) {}
 
-  ENERGY_RECOVERY_TIME_SECONDS = 60 * 60 * 8;
+  ENERGY_RECOVERY_TIME_SECONDS = 60 * 60 * 2;
   BONUS_FOR_INVITE = 100;
   MAX_AMOUNT_ENERGY = 3;
 
@@ -128,6 +128,7 @@ export class UsersService {
       select: {
         id: true,
         slug: true,
+        allCount: true,
       },
     });
 
@@ -144,9 +145,9 @@ export class UsersService {
         refCode: user.refCode,
         userBoosts: {
           createMany: {
-            data: boosts.map(({ id }) => ({
+            data: boosts.map(({ id, allCount }) => ({
               boostId: id,
-              availableCount: 2,
+              availableCount: allCount,
             })),
           },
         },
