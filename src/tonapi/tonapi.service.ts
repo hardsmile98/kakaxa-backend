@@ -41,7 +41,7 @@ export class TonapiService {
       !this.burnCollectionAddress ||
       !this.shittyKingCollectionAddress
     ) {
-      throw new BadRequestException('Не заполнен адресс nft коллекции');
+      throw new BadRequestException('NFT collection address is empty');
     }
 
     let walletData: { public_key: string; address: string };

@@ -25,11 +25,11 @@ export class GameService {
         });
 
         if (findedUser.amountEnergy <= 0) {
-          throw new BadRequestException('Недостаточно энергии для старта игры');
+          throw new BadRequestException('Not enough power to start the game');
         }
 
         if (findedUser.amountEnergy > settings.MAX_ENERGY) {
-          throw new BadRequestException('Недостаточно энергии для старта игры');
+          throw new BadRequestException('Not enough power to start the game');
         }
 
         await this.prismaService.user.update({
@@ -83,24 +83,22 @@ export class GameService {
       });
 
       if (!findedGame || !findedUser) {
-        throw new BadRequestException('Пользователь или игра не найдена');
+        throw new BadRequestException('User or game not found');
       }
 
       if (findedGame.endTime) {
-        throw new BadRequestException('Игра уже завершена');
+        throw new BadRequestException('The game is already over');
       }
 
       const now = Date.now().toString();
       const diffSeconds = (Number(now) - Number(findedGame.startTime)) / 1000;
 
       if (diffSeconds > maxDiffSeconds) {
-        throw new BadRequestException(
-          'Прошло слишком много времени для завершения игры',
-        );
+        throw new BadRequestException('It took too long to complete the game');
       }
 
       if (game.score > maxScoreInGame) {
-        throw new BadRequestException('Собрано слишком много КАКАХ');
+        throw new BadRequestException('Too many KKXP collected');
       }
 
       await this.prismaService.userGame.update({

@@ -138,11 +138,11 @@ export class BoostsService {
       });
 
       if (!userBoost) {
-        throw new BadRequestException('Такого буста не существует');
+        throw new BadRequestException('Such a boost does not exist');
       }
 
       if (userBoost.availableCount === 0) {
-        throw new BadRequestException('У вас нет доступных бустов');
+        throw new BadRequestException('You have no boosts available');
       }
 
       switch (userBoost.boost.slug) {
@@ -152,7 +152,9 @@ export class BoostsService {
           });
 
           if (findedUser.amountEnergy === 3) {
-            throw new BadRequestException('У вас уже полный запас энергии');
+            throw new BadRequestException(
+              'You already have a full supply of energy',
+            );
           }
 
           const newEnergy = findedUser.amountEnergy + 1;
@@ -205,14 +207,14 @@ export class BoostsService {
       });
 
       if (!userBoost) {
-        throw new BadRequestException('Такого буста не существует');
+        throw new BadRequestException('Such a boost does not exist');
       }
 
       if (
         !userBoost.boost.canImproved ||
         userBoost.level === userBoost.boost.maxLevel
       ) {
-        throw new BadRequestException('Нельзя улучшить буст');
+        throw new BadRequestException('Boost cannot be improved');
       }
 
       const findedUser = await this.prismaService.user.findUnique({
@@ -220,7 +222,7 @@ export class BoostsService {
       });
 
       if (findedUser.score < userBoost.boost.levelPrice) {
-        throw new BadRequestException('Не хватает КАКАХ для улучшения');
+        throw new BadRequestException('Not enough KKXP to improve');
       }
 
       await this.usersService.decreaseScore(user, userBoost.boost.levelPrice);
