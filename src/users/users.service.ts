@@ -129,6 +129,8 @@ export class UsersService {
       },
     });
 
+    const language = user.language_code === 'ru' ? 'ru' : 'en';
+
     const newUser = await this.prismaService.user.create({
       include: {
         userBoosts: true,
@@ -140,6 +142,7 @@ export class UsersService {
         username: user.username,
         inviteCode,
         refCode: user.refCode,
+        language: language,
         userBoosts: {
           createMany: {
             data: boosts.map(({ id, allCount }) => ({
