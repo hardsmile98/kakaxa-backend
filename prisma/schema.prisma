@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Laguage {
+  ru
+  en
+}
+
 model User {
   userId            BigInt      @id @unique
   name              String      @default("")
@@ -16,6 +21,7 @@ model User {
   gameTime          Int         @default(60)
   score             Float       @default(0)
   skin              String      @default("default")
+  language          Laguage     @default(ru)
   userTasks         UserTask[]
   inviteCode        String      @unique @db.VarChar(32)
   refCode           String?     @db.VarChar(32)
