@@ -99,11 +99,19 @@ enum TypeOfChange {
   descrease
 }
 
+enum Reason {
+  default
+  invite
+  game
+  task
+}
+
 model UserScore {
   id        Int          @id @default(autoincrement())
   user      User         @relation(fields: [userId], references: [userId])
   userId    BigInt
   count     Float
-  type      TypeOfChange
+  type      TypeOfChange 
+  reason    Reason       @default(default)
   createdAt DateTime     @default(now())
 }

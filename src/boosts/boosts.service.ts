@@ -225,7 +225,7 @@ export class BoostsService {
         throw new BadRequestException('Not enough KKXP to improve');
       }
 
-      await this.usersService.decreaseScore(user, userBoost.upgradePrice);
+      await this.usersService.decreaseScore(user.id, userBoost.upgradePrice);
 
       switch (userBoost.boost.slug) {
         case 'energy': {

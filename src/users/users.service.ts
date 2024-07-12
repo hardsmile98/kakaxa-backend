@@ -5,6 +5,7 @@ import { generate } from 'short-uuid';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
 import { settings } from 'src/global/constants';
+import { Reason } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -160,12 +161,21 @@ export class UsersService {
       },
     });
 
-    await this.prismaService.userScore.create({
-      data: {
-        userId: user.id,
-        count: 0,
-        type: 'increase',
-      },
+    await this.prismaService.userScore.createMany({
+      data: [
+        {
+          userId: user.id,
+          count: 0,
+          type: 'increase',
+          reason: 'game',
+        },
+        {
+          userId: user.id,
+          count: 0,
+          type: 'increase',
+          reason: 'invite',
+        },
+      ],
     });
 
     delete newUser.userBoosts;
@@ -182,17 +192,17 @@ export class UsersService {
     if (findedUser) {
       const bonusForInvite = settings.BONUS_FOR_INVITE;
 
-      await this.increaseScore(findedUser.userId, bonusForInvite);
+      await this.increaseScore(findedUser.userId, bonusForInvite, 'invite');
     }
   }
 
-  async decreaseScore(user: TgUser, count: number) {
+  async decreaseScore(userId: bigint, count: number) {
     const findedUser = await this.prismaService.user.findFirst({
-      where: { userId: user.id },
+      where: { userId: userId },
     });
 
     await this.prismaService.user.update({
-      where: { userId: user.id },
+      where: { userId: userId },
       data: {
         score: Number((findedUser.score - count).toFixed(3)),
       },
@@ -200,7 +210,7 @@ export class UsersService {
 
     await this.prismaService.userScore.create({
       data: {
-        userId: user.id,
+        userId: userId,
         type: 'descrease',
         count: Number(count.toFixed(3)),
       },
@@ -209,7 +219,7 @@ export class UsersService {
     return true;
   }
 
-  async increaseScore(userId: bigint, count: number) {
+  async increaseScore(userId: bigint, count: number, reason: Reason) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { userId: userId },
     });
@@ -227,6 +237,7 @@ export class UsersService {
 
     await this.prismaService.userScore.create({
       data: {
+        reason,
         userId: findedUser.userId,
         type: 'increase',
         count: Number(count.toFixed(3)),
