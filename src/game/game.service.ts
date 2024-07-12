@@ -100,6 +100,10 @@ export class GameService {
         throw new BadRequestException('Собрано слишком много КАКАХ');
       }
 
+      if (game.score > diffSeconds) {
+        throw new BadRequestException('Собрано слишком много КАКАХ');
+      }
+
       await this.prismaService.userGame.update({
         where: { id: findedGame.id },
         data: {
