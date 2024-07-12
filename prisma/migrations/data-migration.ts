@@ -45,7 +45,7 @@ const addBoosts = async () => {
         description: 'Restores 1 unit of energy',
         improveTitle: 'Game time +5 seconds',
         allCount: 2,
-        levelPrice: 300,
+        basePrice: 300,
         maxLevel: 10,
         canImproved: true,
         recoverySeconds: 2 * 60 * 60,

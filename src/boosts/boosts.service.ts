@@ -221,11 +221,11 @@ export class BoostsService {
         where: { userId: user.id },
       });
 
-      if (findedUser.score < userBoost.boost.levelPrice) {
+      if (findedUser.score < userBoost.upgradePrice) {
         throw new BadRequestException('Not enough KKXP to improve');
       }
 
-      await this.usersService.decreaseScore(user, userBoost.boost.levelPrice);
+      await this.usersService.decreaseScore(user, userBoost.upgradePrice);
 
       switch (userBoost.boost.slug) {
         case 'energy': {
@@ -241,6 +241,7 @@ export class BoostsService {
           await this.prismaService.userBoost.update({
             where: { id: boost.boostId },
             data: {
+              upgradePrice: userBoost.upgradePrice + userBoost.boost.basePrice,
               level: newLevel,
             },
           });

@@ -126,6 +126,7 @@ export class UsersService {
         id: true,
         slug: true,
         allCount: true,
+        basePrice: true,
       },
     });
 
@@ -142,9 +143,10 @@ export class UsersService {
         refCode: user.refCode,
         userBoosts: {
           createMany: {
-            data: boosts.map(({ id, allCount }) => ({
+            data: boosts.map(({ id, allCount, basePrice }) => ({
               boostId: id,
               availableCount: allCount,
+              upgradePrice: basePrice,
             })),
           },
         },

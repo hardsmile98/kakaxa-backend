@@ -55,6 +55,7 @@ model UserBoost {
   boost          Boost   @relation(fields: [boostId], references: [id])
   boostId        Int
   level          Int     @default(0)
+  upgradePrice   Float   @default(0)
   availableCount Int     @default(1)
   useTimestamp   String? @db.VarChar(32)
 }
@@ -73,7 +74,7 @@ model Boost {
   improveTitle    String      @default("")
   allCount        Int         @default(1)
   userBoost       UserBoost[]
-  levelPrice      Float       @default(0)
+  basePrice       Float       @default(0)
   maxLevel        Int         @default(0)
   canImproved     Boolean     @default(false)
   recoverySeconds Int         @default(0)
