@@ -33,7 +33,7 @@ const addBoosts = async () => {
         title: 'Magnet',
         slug: 'magnit',
         description:
-          'Pulls in all KKX points for {duration} seconds, press the "apply" button, return to the game and collect KKX points.',
+          'Pulls in all KKX points for {duration} seconds, press the "apply" button, return to the game and collect KKX points',
         allCount: 2,
         type: 'daily',
         recoverySeconds: 12 * 60 * 60,
