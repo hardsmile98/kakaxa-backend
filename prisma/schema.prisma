@@ -49,15 +49,16 @@ model Task {
 }
 
 model UserBoost {
-  id             Int     @id @default(autoincrement())
-  user           User    @relation(fields: [userId], references: [userId])
+  id             Int        @id @default(autoincrement())
+  user           User       @relation(fields: [userId], references: [userId])
   userId         BigInt
-  boost          Boost   @relation(fields: [boostId], references: [id])
+  boost          Boost      @relation(fields: [boostId], references: [id])
   boostId        Int
-  level          Int     @default(0)
-  upgradePrice   Float   @default(0)
-  availableCount Int     @default(1)
-  useTimestamp   String? @db.VarChar(32)
+  level          Int        @default(0)
+  upgradePrice   Float      @default(0)
+  availableCount Int        @default(1)
+  useTimestamp   String?    @db.VarChar(32)
+  UserGame       UserGame[]
 }
 
 enum BoostType {
@@ -81,14 +82,16 @@ model Boost {
 }
 
 model UserGame {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [userId])
+  id        Int        @id @default(autoincrement())
+  user      User       @relation(fields: [userId], references: [userId])
   userId    BigInt
-  hash      String   @unique @db.VarChar(64)
-  score     Float    @default(0)
-  startTime String?  @db.VarChar(32)
-  endTime   String?  @db.VarChar(32)
-  createdAt DateTime @default(now())
+  hash      String     @unique @db.VarChar(64)
+  score     Float      @default(0)
+  boost     UserBoost? @relation(fields: [boostId], references: [id])
+  boostId   Int?
+  startTime String?    @db.VarChar(32)
+  endTime   String?    @db.VarChar(32)
+  createdAt DateTime   @default(now())
 }
 
 enum TypeOfChange {

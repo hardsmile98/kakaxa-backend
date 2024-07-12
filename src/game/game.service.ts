@@ -50,6 +50,7 @@ export class GameService {
           userId: user.id,
           hash,
           startTime: Date.now().toString(),
+          boostId: dto.boostId,
         },
       });
 
@@ -98,7 +99,11 @@ export class GameService {
         throw new BadRequestException('Too many KKXP collected');
       }
 
-      if (game.score > diffSeconds) {
+      const isTooManyCollected = findedGame.boostId
+        ? game.score > diffSeconds * 2
+        : game.score > diffSeconds;
+
+      if (isTooManyCollected) {
         throw new BadRequestException('Too many KKXP collected');
       }
 
