@@ -66,9 +66,6 @@ export class GameService {
   }
 
   async endGame(user: TgUser, game: GameDto) {
-    const maxDiffSeconds = 180; // Максимальная разница между стартом игры и заверщением
-    const maxScoreInGame = 300; // Максимальный счет за игру
-
     try {
       const findedGame = await this.prismaService.userGame.findUnique({
         where: {
@@ -93,11 +90,11 @@ export class GameService {
       const now = Date.now().toString();
       const diffSeconds = (Number(now) - Number(findedGame.startTime)) / 1000;
 
-      if (diffSeconds > maxDiffSeconds) {
+      if (diffSeconds > settings.MAX_DIFF_SECONDS) {
         throw new BadRequestException('It took too long to complete the game');
       }
 
-      if (game.score > maxScoreInGame) {
+      if (game.score > settings.MAX_SCORE_IN_GAME) {
         throw new BadRequestException('Too many KKXP collected');
       }
 
