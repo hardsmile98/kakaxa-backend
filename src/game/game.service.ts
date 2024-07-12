@@ -98,6 +98,10 @@ export class GameService {
         throw new BadRequestException('Too many KKXP collected');
       }
 
+      if (game.score > diffSeconds) {
+        throw new BadRequestException('Too many KKXP collected');
+      }
+
       await this.prismaService.userGame.update({
         where: { id: findedGame.id },
         data: {
