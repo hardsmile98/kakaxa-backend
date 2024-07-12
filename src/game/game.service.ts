@@ -100,7 +100,7 @@ export class GameService {
         throw new BadRequestException('Собрано слишком много КАКАХ');
       }
 
-      if (game.score > diffSeconds) {
+      if (game.score > 50 && game.score > diffSeconds) {
         throw new BadRequestException('Собрано слишком много КАКАХ');
       }
 
