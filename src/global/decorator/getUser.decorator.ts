@@ -15,6 +15,7 @@ export type TgUserData = {
   last_name: string;
   username: string;
   language_code: 'ru' | 'en' | string;
+  is_premium: boolean;
 };
 
 export type TgUser = TgUserData & {

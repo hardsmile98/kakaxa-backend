@@ -16,13 +16,26 @@ model User {
   gameTime          Int         @default(60)
   score             Float       @default(0)
   skin              String      @default("default")
+  gamesPlayed       Int         @default(0)
   userTasks         UserTask[]
   inviteCode        String      @unique @db.VarChar(32)
-  refCode           String?     @db.VarChar(32)
+  isPremium         Boolean     @default(false)
   userBoosts        UserBoost[]
   userGames         UserGame[]
   userScores        UserScore[]
+  referrals         Referral[]  @relation("Referrer")
+  referredBy        Referral?   @relation("Referred")
   createdAt         DateTime    @default(now())
+}
+
+model Referral {
+  id           Int      @id @default(autoincrement())
+  referrer     User     @relation("Referrer", fields: [referrerId], references: [userId])
+  referrerId   BigInt
+  referredById BigInt   @unique
+  referredBy   User     @relation("Referred", fields: [referredById], references: [userId])
+  isActivated  Boolean  @default(false)
+  createdAt    DateTime @default(now())
 }
 
 model UserTask {
@@ -111,7 +124,7 @@ model UserScore {
   user      User         @relation(fields: [userId], references: [userId])
   userId    BigInt
   count     Float
-  type      TypeOfChange 
+  type      TypeOfChange
   reason    Reason       @default(default)
   createdAt DateTime     @default(now())
 }

@@ -117,6 +117,19 @@ export class GameService {
 
       await this.usersService.increaseScore(user.id, game.score, 'game');
 
+      const newGamesPlayed = findedUser.gamesPlayed + 1;
+
+      await this.prismaService.user.update({
+        where: {
+          userId: findedUser.userId,
+        },
+        data: {
+          gamesPlayed: newGamesPlayed,
+        },
+      });
+
+      await this.usersService.bonusForReferral(user.id, newGamesPlayed);
+
       return {
         success: true,
       };
