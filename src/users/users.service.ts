@@ -256,7 +256,6 @@ export class UsersService {
     try {
       const topFarm = await this.prismaService.$queryRawUnsafe<
         {
-          userId: number;
           score: number;
           name: string;
           username: string;
@@ -288,7 +287,6 @@ export class UsersService {
 
       const topInvite = await this.prismaService.$queryRawUnsafe<
         {
-          userId: number;
           score: number;
           name: string;
           username: string;
