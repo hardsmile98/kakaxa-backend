@@ -112,10 +112,6 @@ export class UsersService {
   }
 
   async createUser(user: TgUser) {
-    if (user.refCode) {
-      await this.checkRefCode(user.refCode, user.id);
-    }
-
     const inviteCode = generate();
 
     const tasks = await this.prismaService.task.findMany({
@@ -160,6 +156,10 @@ export class UsersService {
         },
       },
     });
+
+    if (user.refCode) {
+      await this.checkRefCode(user.refCode, user.id);
+    }
 
     await this.prismaService.userScore.createMany({
       data: [
