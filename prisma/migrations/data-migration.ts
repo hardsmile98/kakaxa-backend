@@ -9,18 +9,12 @@ const addTasks = async () => {
         title: 'Subscribe to main channel',
         bonus: 100,
         linkType: 'telegram',
-        link: 'https://t.me/kakaxa_coin',
+        link: 'https://t.me/kkxlove',
       },
       {
         title: 'Subscribe to X (Twitter)',
         bonus: 100,
         link: 'https://x.com/kakaxa_ton',
-      },
-      {
-        title: 'Subscribe to EN Chat',
-        bonus: 100,
-        linkType: 'telegram',
-        link: 'https://t.me/kakaxa_ton_en',
       },
     ],
   });
