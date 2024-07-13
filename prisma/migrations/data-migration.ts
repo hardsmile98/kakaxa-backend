@@ -42,7 +42,7 @@ const addBoosts = async () => {
         basePrice: 300,
         maxLevel: 10,
         canImproved: true,
-        recoverySeconds: 2 * 60 * 60,
+        recoverySeconds: 12 * 60 * 60,
       },
     ],
   });
