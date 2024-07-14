@@ -369,7 +369,8 @@ export class UsersService {
             ? settings.BONUS_FOR_INVITE_WITH_PREMIUM
             : settings.BONUS_FOR_INVITE,
         })),
-        maxBonus: settings.BONUS_FOR_INVITE_WITH_PREMIUM,
+        bonusForInviteWithPremium: settings.BONUS_FOR_INVITE_WITH_PREMIUM,
+        bonusForInvite: settings.BONUS_FOR_INVITE,
         success: true,
       };
     } catch (e) {
