@@ -102,7 +102,10 @@ export class TonapiService {
 
       response = filtered;
     } catch (e) {
-      console.log(`Error get nft: `, e.message);
+      console.log(
+        `Error get nft with address ${walletData.address}: `,
+        e.message,
+      );
     }
 
     return response;
