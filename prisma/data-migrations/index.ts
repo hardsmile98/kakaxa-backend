@@ -12,9 +12,22 @@ const addTasks = async () => {
         link: 'https://t.me/kkxlove',
       },
       {
-        title: 'Subscribe to X (Twitter)',
+        title: '$KAKAXA',
         bonus: 100,
-        link: 'https://x.com/kakaxa_ton',
+        linkType: 'telegram',
+        link: 'https://t.me/kakaxa_coin',
+      },
+      {
+        title: 'ROMANOVICH',
+        bonus: 50,
+        linkType: 'telegram',
+        link: 'https://t.me/cryptozbro',
+      },
+      {
+        title: 'CRYPTOBRAT',
+        bonus: 50,
+        linkType: 'telegram',
+        link: 'https://t.me/cryptobraze',
       },
     ],
   });
