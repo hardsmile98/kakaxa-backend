@@ -33,7 +33,7 @@ model Referral {
   referrer     User     @relation("Referrer", fields: [referrerId], references: [userId])
   referrerId   BigInt
   referredById BigInt
-  referredBy   User?     @relation("Referred", fields: [referredById], references: [userId])
+  referredBy   User?    @relation("Referred", fields: [referredById], references: [userId])
   isActivated  Boolean  @default(false)
   createdAt    DateTime @default(now())
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -6,6 +6,7 @@ import { BoostsModule } from './boosts/boosts.module';
 import { TasksModule } from './tasks/tasks.module';
 import { GameModule } from './game/game.module';
 import { TonapiModule } from './tonapi/tonapi.module';
+import { CheckSignature } from './global/middlewares';
 
 @Module({
   imports: [
@@ -20,4 +21,8 @@ import { TonapiModule } from './tonapi/tonapi.module';
     TonapiModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CheckSignature).forRoutes('*');
+  }
+}
