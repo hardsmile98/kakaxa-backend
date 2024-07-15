@@ -80,7 +80,7 @@ export class TonapiService {
       const data = await lastValueFrom(
         this.httpService
           .get<{ nft_items: Array<{ collection: { address: string } }> }>(
-            `https://tonapi.io/v2/accounts/0:6f73f74c337e0e762f3d1ff3bdede28fa7dbd00c1240553eecd03e03245a5fc7/nfts`,
+            `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
             {
               headers: {
                 Authorization: this.topapiToken
