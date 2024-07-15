@@ -74,43 +74,36 @@ export class TonapiService {
       return null;
     }
 
-    const response: {
-      world: object[];
-      burn: object[];
-      shittyKing: object[];
-    } = {
-      world: [],
-      burn: [],
-      shittyKing: [],
-    };
+    let response: object[] = [];
 
-    await Promise.all(
-      Object.keys(response).map(async (key) => {
-        try {
-          const data = await lastValueFrom(
-            this.httpService
-              .get<{ nft_items: Array<object> }>(
-                `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
-                {
-                  params: {
-                    collection: this.mapCollections[key],
-                  },
-                  headers: {
-                    Authorization: this.topapiToken
-                      ? `Bearer ${this.topapiToken}`
-                      : undefined,
-                  },
-                },
-              )
-              .pipe(map((res) => res.data)),
-          );
+    try {
+      const data = await lastValueFrom(
+        this.httpService
+          .get<{ nft_items: Array<{ collection: { address: string } }> }>(
+            `https://tonapi.io/v2/accounts/0:6f73f74c337e0e762f3d1ff3bdede28fa7dbd00c1240553eecd03e03245a5fc7/nfts`,
+            {
+              headers: {
+                Authorization: this.topapiToken
+                  ? `Bearer ${this.topapiToken}`
+                  : undefined,
+              },
+            },
+          )
+          .pipe(map((res) => res.data)),
+      );
 
-          response[key] = data.nft_items;
-        } catch (e) {
-          console.log(`Error get nft in collection ${key}: `, e.message);
-        }
-      }),
-    );
+      const filtered = data.nft_items.filter((el) =>
+        [
+          this.shittyKingCollectionAddress,
+          this.burnCollectionAddress,
+          this.worldCollectionAddress,
+        ].includes(el.collection.address),
+      );
+
+      response = filtered;
+    } catch (e) {
+      console.log(`Error get nft: `, e.message);
+    }
 
     return response;
   }

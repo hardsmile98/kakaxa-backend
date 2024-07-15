@@ -100,15 +100,11 @@ export class GameService {
       }
 
       const isTooManyCollected = findedGame.boostId
-        ? game.score > diffSeconds * 2
-        : game.score > diffSeconds;
+        ? game.score > diffSeconds * 2 + diffSeconds * 2 * 0.5
+        : game.score > diffSeconds + diffSeconds * 0.5;
 
       if (isTooManyCollected) {
         throw new BadRequestException('Too many KKXP collected');
-      }
-
-      if (game.score > 50 && game.score > diffSeconds) {
-        throw new BadRequestException('Собрано слишком много КАКАХ');
       }
 
       await this.prismaService.userGame.update({
