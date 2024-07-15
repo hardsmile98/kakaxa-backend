@@ -4,7 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
 
 interface EnvironmentVariables {
-  NFT_COLLECTION_ADDRESS: string;
+  WORLD_NFT_COLLECTION_ADDRESS: string;
+  BURN_NFT_COLLECTION_ADDRESS: string;
+  SHITTY_KING_NFT_COLLECTION_ADDRESS: string;
   TONAPI_TOKEN: string;
 }
 
@@ -17,15 +19,35 @@ export class TonapiService {
     private configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  async getNftByAddress(walletStateInit: string) {
-    const collectionAddress = this.configService.get('NFT_COLLECTION_ADDRESS');
+  worldCollectionAddress = this.configService.get(
+    'WORLD_NFT_COLLECTION_ADDRESS',
+  );
 
-    if (!collectionAddress) {
-      throw new BadRequestException('Не заполнен адресс nft коллекции');
+  burnCollectionAddress = this.configService.get('BURN_NFT_COLLECTION_ADDRESS');
+
+  shittyKingCollectionAddress = this.configService.get(
+    'SHITTY_KING_NFT_COLLECTION_ADDRESS',
+  );
+
+  mapCollections = {
+    world: this.worldCollectionAddress,
+    burn: this.burnCollectionAddress,
+    shittyKing: this.shittyKingCollectionAddress,
+  };
+
+  async getNftByAddress(walletStateInit: string) {
+    if (
+      !this.worldCollectionAddress ||
+      !this.burnCollectionAddress ||
+      !this.shittyKingCollectionAddress
+    ) {
+      throw new BadRequestException('NFT collection address is empty');
     }
 
+    let walletData: { public_key: string; address: string };
+
     try {
-      const walletData = await lastValueFrom(
+      walletData = await lastValueFrom(
         this.httpService
           .post<{ public_key: string; address: string }>(
             `https://tonapi.io/v2/tonconnect/stateinit`,
@@ -42,32 +64,54 @@ export class TonapiService {
           )
           .pipe(map((res) => res.data)),
       );
+    } catch (e) {
+      console.log('Error get wallet info: ', e.message);
 
-      if (!walletData) {
-        return null;
-      }
-
-      const data = await lastValueFrom(
-        this.httpService
-          .get<{ nft_items: Array<object> }>(
-            `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
-            {
-              params: {
-                collection: collectionAddress,
-              },
-              headers: {
-                Authorization: this.topapiToken
-                  ? `Bearer ${this.topapiToken}`
-                  : undefined,
-              },
-            },
-          )
-          .pipe(map((res) => res.data)),
-      );
-
-      return data;
-    } catch (_e) {
       return null;
     }
+
+    if (!walletData) {
+      return null;
+    }
+
+    const response: {
+      world: object[];
+      burn: object[];
+      shittyKing: object[];
+    } = {
+      world: [],
+      burn: [],
+      shittyKing: [],
+    };
+
+    await Promise.all(
+      Object.keys(response).map(async (key) => {
+        try {
+          const data = await lastValueFrom(
+            this.httpService
+              .get<{ nft_items: Array<object> }>(
+                `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
+                {
+                  params: {
+                    collection: this.mapCollections[key],
+                  },
+                  headers: {
+                    Authorization: this.topapiToken
+                      ? `Bearer ${this.topapiToken}`
+                      : undefined,
+                  },
+                },
+              )
+              .pipe(map((res) => res.data)),
+          );
+
+          response[key] = data.nft_items;
+        } catch (e) {
+          console.log(`Error get nft in collection ${key}: `, e.message);
+        }
+      }),
+    );
+
+    return response;
   }
 }

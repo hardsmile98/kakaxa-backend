@@ -6,21 +6,15 @@ const addTasks = async () => {
   await prisma.task.createMany({
     data: [
       {
-        title: 'Подписка на основной канал',
+        title: 'Subscribe to main channel',
         bonus: 100,
         linkType: 'telegram',
-        link: 'https://t.me/kakaxa_coin',
+        link: 'https://t.me/kkxlove',
       },
       {
-        title: 'Подписка на X (Twitter)',
+        title: 'Subscribe to X (Twitter)',
         bonus: 100,
         link: 'https://x.com/kakaxa_ton',
-      },
-      {
-        title: 'Подписка на EN CHAT',
-        bonus: 100,
-        linkType: 'telegram',
-        link: 'https://t.me/kakaxa_ton_en',
       },
     ],
   });
@@ -30,25 +24,25 @@ const addBoosts = async () => {
   await prisma.boost.createMany({
     data: [
       {
-        title: 'Магнит',
+        title: 'Magnet',
         slug: 'magnit',
         description:
-          'Притягивает все KKX POITNS в течение {duration} секунд, нажми на кнопку “Применить”, возвращайся в игру и собирай KKX POITNS',
+          'Pulls in all KKX points for {duration} seconds, press the "apply" button, return to the game and collect KKX points',
         allCount: 2,
         type: 'daily',
         recoverySeconds: 12 * 60 * 60,
       },
       {
-        title: 'Энергия',
+        title: 'Energy',
         slug: 'energy',
         type: 'daily',
-        description: 'Восстанавливает 1 единицу энергии',
-        improveTitle: 'Время игры +5 сек.',
+        description: 'Restores 1 unit of energy',
+        improveTitle: 'Game time +5 seconds',
         allCount: 2,
-        levelPrice: 300,
+        basePrice: 300,
         maxLevel: 10,
         canImproved: true,
-        recoverySeconds: 4 * 60 * 60,
+        recoverySeconds: 12 * 60 * 60,
       },
     ],
   });

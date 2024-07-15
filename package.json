@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "data-migration": "ts-node ./prisma/migrations/data-migration.ts"
+    "data-migration": "ts-node ./prisma/data-migrations/index.ts",
+    "save-users": "ts-node ./prisma/data-migrations/saveUsers.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",

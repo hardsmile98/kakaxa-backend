@@ -25,11 +25,11 @@ export class GameService {
         });
 
         if (findedUser.amountEnergy <= 0) {
-          throw new BadRequestException('Недостаточно энергии для старта игры');
+          throw new BadRequestException('Not enough power to start the game');
         }
 
         if (findedUser.amountEnergy > settings.MAX_ENERGY) {
-          throw new BadRequestException('Недостаточно энергии для старта игры');
+          throw new BadRequestException('Not enough power to start the game');
         }
 
         await this.prismaService.user.update({
@@ -50,6 +50,7 @@ export class GameService {
           userId: user.id,
           hash,
           startTime: Date.now().toString(),
+          boostId: dto.boostId,
         },
       });
 
@@ -80,24 +81,30 @@ export class GameService {
       });
 
       if (!findedGame || !findedUser) {
-        throw new BadRequestException('Пользователь или игра не найдена');
+        throw new BadRequestException('User or game not found');
       }
 
       if (findedGame.endTime) {
-        throw new BadRequestException('Игра уже завершена');
+        throw new BadRequestException('The game is already over');
       }
 
       const now = Date.now().toString();
       const diffSeconds = (Number(now) - Number(findedGame.startTime)) / 1000;
 
       if (diffSeconds > settings.MAX_DIFF_SECONDS) {
-        throw new BadRequestException(
-          'Прошло слишком много времени для завершения игры',
-        );
+        throw new BadRequestException('It took too long to complete the game');
       }
 
       if (game.score > settings.MAX_SCORE_IN_GAME) {
-        throw new BadRequestException('Собрано слишком много КАКАХ');
+        throw new BadRequestException('Too many KKXP collected');
+      }
+
+      const isTooManyCollected = findedGame.boostId
+        ? game.score > diffSeconds * 2
+        : game.score > diffSeconds;
+
+      if (isTooManyCollected) {
+        throw new BadRequestException('Too many KKXP collected');
       }
 
       if (game.score > 50 && game.score > diffSeconds) {
@@ -112,7 +119,20 @@ export class GameService {
         },
       });
 
-      await this.usersService.increaseScore(user.id, game.score);
+      await this.usersService.increaseScore(user.id, game.score, 'game');
+
+      const newGamesPlayed = findedUser.gamesPlayed + 1;
+
+      await this.prismaService.user.update({
+        where: {
+          userId: findedUser.userId,
+        },
+        data: {
+          gamesPlayed: newGamesPlayed,
+        },
+      });
+
+      await this.usersService.bonusForReferral(user.id, newGamesPlayed);
 
       return {
         success: true,

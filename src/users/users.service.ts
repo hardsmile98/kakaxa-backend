@@ -5,6 +5,7 @@ import { generate } from 'short-uuid';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
 import { settings } from 'src/global/constants';
+import { Reason } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -111,10 +112,6 @@ export class UsersService {
   }
 
   async createUser(user: TgUser) {
-    if (user.refCode) {
-      await this.checkRefCode(user.refCode);
-    }
-
     const inviteCode = generate();
 
     const tasks = await this.prismaService.task.findMany({
@@ -125,6 +122,8 @@ export class UsersService {
       select: {
         id: true,
         slug: true,
+        allCount: true,
+        basePrice: true,
       },
     });
 
@@ -138,12 +137,13 @@ export class UsersService {
         name: user.first_name,
         username: user.username,
         inviteCode,
-        refCode: user.refCode,
+        isPremium: user.is_premium,
         userBoosts: {
           createMany: {
-            data: boosts.map(({ id }) => ({
+            data: boosts.map(({ id, allCount, basePrice }) => ({
               boostId: id,
-              availableCount: 2,
+              availableCount: allCount,
+              upgradePrice: basePrice,
             })),
           },
         },
@@ -157,12 +157,25 @@ export class UsersService {
       },
     });
 
-    await this.prismaService.userScore.create({
-      data: {
-        userId: user.id,
-        count: 0,
-        type: 'increase',
-      },
+    if (user.refCode) {
+      await this.checkRefCode(user.refCode, user.id);
+    }
+
+    await this.prismaService.userScore.createMany({
+      data: [
+        {
+          userId: user.id,
+          count: 0,
+          type: 'increase',
+          reason: 'game',
+        },
+        {
+          userId: user.id,
+          count: 0,
+          type: 'increase',
+          reason: 'invite',
+        },
+      ],
     });
 
     delete newUser.userBoosts;
@@ -171,25 +184,28 @@ export class UsersService {
     return newUser;
   }
 
-  async checkRefCode(refCode: string) {
+  async checkRefCode(refCode: string, userId: bigint) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { inviteCode: refCode },
     });
 
     if (findedUser) {
-      const bonusForInvite = settings.BONUS_FOR_INVITE;
-
-      await this.increaseScore(findedUser.userId, bonusForInvite);
+      await this.prismaService.referral.create({
+        data: {
+          referrerId: userId,
+          referredById: findedUser.userId,
+        },
+      });
     }
   }
 
-  async decreaseScore(user: TgUser, count: number) {
+  async decreaseScore(userId: bigint, count: number) {
     const findedUser = await this.prismaService.user.findFirst({
-      where: { userId: user.id },
+      where: { userId: userId },
     });
 
     await this.prismaService.user.update({
-      where: { userId: user.id },
+      where: { userId: userId },
       data: {
         score: Number((findedUser.score - count).toFixed(3)),
       },
@@ -197,7 +213,7 @@ export class UsersService {
 
     await this.prismaService.userScore.create({
       data: {
-        userId: user.id,
+        userId: userId,
         type: 'descrease',
         count: Number(count.toFixed(3)),
       },
@@ -206,7 +222,7 @@ export class UsersService {
     return true;
   }
 
-  async increaseScore(userId: bigint, count: number) {
+  async increaseScore(userId: bigint, count: number, reason: Reason) {
     const findedUser = await this.prismaService.user.findFirst({
       where: { userId: userId },
     });
@@ -224,6 +240,7 @@ export class UsersService {
 
     await this.prismaService.userScore.create({
       data: {
+        reason,
         userId: findedUser.userId,
         type: 'increase',
         count: Number(count.toFixed(3)),
@@ -234,10 +251,11 @@ export class UsersService {
   }
 
   async getLeadboard(user: TgUser) {
+    const LIMIT = 300;
+
     try {
-      const top100 = await this.prismaService.$queryRawUnsafe<
+      const topFarm = await this.prismaService.$queryRawUnsafe<
         {
-          userId: number;
           score: number;
           name: string;
           username: string;
@@ -246,13 +264,13 @@ export class UsersService {
         `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
         FROM public."UserScore" t
         INNER JOIN public."User" u ON t."userId" = u."userId"
-        WHERE t.type = 'increase'
+        WHERE t.type = 'increase' AND t.reason = 'game'
         GROUP BY t."userId", u.name, u.username
         ORDER BY score DESC
-        LIMIT 100;`,
+        LIMIT ${LIMIT};`,
       );
 
-      const [position] = await this.prismaService.$queryRawUnsafe<
+      const [positionFarm] = await this.prismaService.$queryRawUnsafe<
         {
           score: number;
           index: number;
@@ -262,14 +280,51 @@ export class UsersService {
         FROM (
           SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
           FROM public."UserScore" 
-          WHERE type = 'increase' GROUP BY "userId"
+          WHERE type = 'increase' AND reason = 'game' GROUP BY "userId"
         ) as t
         WHERE t."userId" = ${user.id}`,
       );
 
+      const topInvite = await this.prismaService.$queryRawUnsafe<
+        {
+          score: number;
+          name: string;
+          username: string;
+        }[]
+      >(
+        `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
+      FROM public."UserScore" t
+      INNER JOIN public."User" u ON t."userId" = u."userId"
+      WHERE t.type = 'increase' AND t.reason = 'invite'
+      GROUP BY t."userId", u.name, u.username
+      ORDER BY score DESC
+      LIMIT ${LIMIT};`,
+      );
+
+      const [positionInvite] = await this.prismaService.$queryRawUnsafe<
+        {
+          score: number;
+          index: number;
+        }[]
+      >(
+        `SELECT index, score 
+      FROM (
+        SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
+        FROM public."UserScore" 
+        WHERE type = 'increase' AND reason = 'invite' GROUP BY "userId"
+      ) as t
+      WHERE t."userId" = ${user.id}`,
+      );
+
       return {
-        position: position,
-        top: top100,
+        farm: {
+          top: topFarm,
+          position: positionFarm,
+        },
+        invite: {
+          top: topInvite,
+          position: positionInvite,
+        },
         success: true,
       };
     } catch (e) {
@@ -282,23 +337,40 @@ export class UsersService {
       const findedUser = await this.prismaService.user.findUnique({
         where: { userId: user.id },
         select: {
-          inviteCode: true,
+          userId: true,
         },
       });
 
-      const referals = await this.prismaService.user.findMany({
+      if (!findedUser) {
+        throw new BadRequestException('User not found');
+      }
+
+      const referals = await this.prismaService.referral.findMany({
         where: {
-          refCode: findedUser.inviteCode,
+          referredById: findedUser.userId,
+          isActivated: true,
         },
         select: {
-          userId: true,
-          name: true,
-          username: true,
+          referrer: {
+            select: {
+              isPremium: true,
+              userId: true,
+              name: true,
+              username: true,
+            },
+          },
         },
       });
 
       return {
-        referals,
+        referals: referals.map((ref) => ({
+          ...ref.referrer,
+          bonus: ref.referrer.isPremium
+            ? settings.BONUS_FOR_INVITE_WITH_PREMIUM
+            : settings.BONUS_FOR_INVITE,
+        })),
+        bonusForInviteWithPremium: settings.BONUS_FOR_INVITE_WITH_PREMIUM,
+        bonusForInvite: settings.BONUS_FOR_INVITE,
         success: true,
       };
     } catch (e) {
@@ -327,7 +399,12 @@ export class UsersService {
         nftQuery.walletStateInit,
       );
 
-      const nftCount = data?.nft_items?.length || 0;
+      let nftCount = 0;
+
+      if (data) {
+        nftCount =
+          data.world?.length + data.burn?.length + data.shittyKing?.length;
+      }
 
       const bonusForNft = nftCount * BONUS_FOR_NFT;
 
@@ -341,6 +418,55 @@ export class UsersService {
         nftCount,
         success: true,
       };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  async bonusForReferral(userId: bigint, gamesPlayed: number) {
+    if (gamesPlayed !== 1) {
+      return;
+    }
+
+    try {
+      const findedReferredRecord = await this.prismaService.referral.findFirst({
+        where: {
+          referrerId: userId,
+          isActivated: false,
+        },
+        select: {
+          id: true,
+          referredById: true,
+          referrer: {
+            select: {
+              isPremium: true,
+            },
+          },
+        },
+      });
+
+      if (!findedReferredRecord) {
+        return;
+      }
+
+      await this.prismaService.referral.update({
+        where: {
+          id: findedReferredRecord.id,
+        },
+        data: {
+          isActivated: true,
+        },
+      });
+
+      const bonusForInvite = findedReferredRecord.referrer.isPremium
+        ? settings.BONUS_FOR_INVITE_WITH_PREMIUM
+        : settings.BONUS_FOR_INVITE;
+
+      await this.increaseScore(
+        findedReferredRecord.referredById,
+        bonusForInvite,
+        'invite',
+      );
     } catch (e) {
       throw new BadRequestException(e.message);
     }
