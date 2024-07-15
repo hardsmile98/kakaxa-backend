@@ -79,7 +79,7 @@ export class TonapiService {
     try {
       const data = await lastValueFrom(
         this.httpService
-          .get<{ nft_items: Array<{ collection: { address: string } }> }>(
+          .get<{ nft_items: Array<{ collection?: { address: string } }> }>(
             `https://tonapi.io/v2/accounts/${walletData.address}/nfts`,
             {
               headers: {
@@ -97,7 +97,7 @@ export class TonapiService {
           this.shittyKingCollectionAddress,
           this.burnCollectionAddress,
           this.worldCollectionAddress,
-        ].includes(el.collection.address),
+        ].includes(el.collection?.address),
       );
 
       response = filtered;
