@@ -24,7 +24,7 @@ model User {
   userGames         UserGame[]
   userScores        UserScore[]
   referrals         Referral[]  @relation("Referrer")
-  referredBy        Referral?   @relation("Referred")
+  referredBy        Referral[]  @relation("Referred")
   createdAt         DateTime    @default(now())
 }
 
@@ -32,8 +32,8 @@ model Referral {
   id           Int      @id @default(autoincrement())
   referrer     User     @relation("Referrer", fields: [referrerId], references: [userId])
   referrerId   BigInt
-  referredById BigInt   @unique
-  referredBy   User     @relation("Referred", fields: [referredById], references: [userId])
+  referredById BigInt
+  referredBy   User?     @relation("Referred", fields: [referredById], references: [userId])
   isActivated  Boolean  @default(false)
   createdAt    DateTime @default(now())
 }
