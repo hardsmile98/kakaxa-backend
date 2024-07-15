@@ -29,12 +29,6 @@ export class TonapiService {
     'SHITTY_KING_NFT_COLLECTION_ADDRESS',
   );
 
-  mapCollections = {
-    world: this.worldCollectionAddress,
-    burn: this.burnCollectionAddress,
-    shittyKing: this.shittyKingCollectionAddress,
-  };
-
   async getNftByAddress(walletStateInit: string) {
     if (
       !this.worldCollectionAddress ||
