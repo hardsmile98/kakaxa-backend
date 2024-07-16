@@ -6,7 +6,7 @@ import { BoostsModule } from './boosts/boosts.module';
 import { TasksModule } from './tasks/tasks.module';
 import { GameModule } from './game/game.module';
 import { TonapiModule } from './tonapi/tonapi.module';
-import { CheckSignature } from './global/middlewares';
+import { checkSignature } from './global/middlewares';
 
 @Module({
   imports: [
@@ -23,6 +23,6 @@ import { CheckSignature } from './global/middlewares';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CheckSignature).forRoutes('*');
+    consumer.apply(checkSignature).forRoutes('*');
   }
 }

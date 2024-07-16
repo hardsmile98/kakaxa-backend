@@ -128,3 +128,9 @@ model UserScore {
   reason    Reason       @default(default)
   createdAt DateTime     @default(now())
 }
+
+model Signature {
+  hash      String   @id() @db.VarChar(128)
+  userId    BigInt
+  createdAt DateTime @default(now())
+}
