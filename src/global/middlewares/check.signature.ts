@@ -48,26 +48,32 @@ export async function checkSignature(
     return res.status(400).json({ message: 'Bad request' });
   }
 
-  const signatureFinded = await prisma.signature.findFirst({
-    where: {
-      hash: signature as string,
-    },
-  });
+  try {
+    const signatureFinded = await prisma.signature.findFirst({
+      where: {
+        hash: signature as string,
+      },
+    });
 
-  if (signatureFinded) {
+    if (signatureFinded) {
+      return res.status(400).json({ message: 'Bad request' });
+    }
+
+    const data = Object.fromEntries(new URLSearchParams(tgData as string));
+
+    const user = JSON.parse(data.user) as TgUserData;
+
+    await prisma.signature.create({
+      data: {
+        hash: signature as string,
+        userId: user.id,
+      },
+    });
+
+    next();
+  } catch (e) {
+    console.log('Errir check signature: ', e.message);
+
     return res.status(400).json({ message: 'Bad request' });
   }
-
-  const data = Object.fromEntries(new URLSearchParams(tgData as string));
-
-  const user = JSON.parse(data.user) as TgUserData;
-
-  await prisma.signature.create({
-    data: {
-      hash: signature as string,
-      userId: user.id,
-    },
-  });
-
-  next();
 }
