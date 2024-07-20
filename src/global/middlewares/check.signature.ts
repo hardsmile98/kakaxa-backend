@@ -49,7 +49,7 @@ export async function checkSignature(
   }
 
   try {
-    const signatureFinded = await prisma.signature.findFirst({
+    const signatureFinded = await prisma.request.findFirst({
       where: {
         hash: signature as string,
       },
@@ -63,8 +63,9 @@ export async function checkSignature(
 
     const user = JSON.parse(data.user) as TgUserData;
 
-    await prisma.signature.create({
+    await prisma.request.create({
       data: {
+        path: req.baseUrl,
         hash: signature as string,
         userId: user.id,
       },

@@ -129,8 +129,9 @@ model UserScore {
   createdAt DateTime     @default(now())
 }
 
-model Signature {
+model Request {
   hash      String   @id() @db.VarChar(128)
+  path      String   @default("")
   userId    BigInt
   createdAt DateTime @default(now())
 }
