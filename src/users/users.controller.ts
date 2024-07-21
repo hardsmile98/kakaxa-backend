@@ -31,4 +31,9 @@ export class UsersController {
   getReferals(@GetUser() user: TgUser) {
     return this.usersService.getReferals(user);
   }
+
+  @Get('/stats')
+  getStatistics() {
+    return this.usersService.getStatistics();
+  }
 }

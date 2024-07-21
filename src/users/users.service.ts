@@ -466,4 +466,19 @@ export class UsersService {
       throw new BadRequestException(e.message);
     }
   }
+
+  async getStatistics() {
+    try {
+      const userCount = await this.prismaService.user.count();
+
+      const addUsers = 5_000;
+
+      return {
+        count: userCount + addUsers,
+        success: true,
+      };
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
 }
