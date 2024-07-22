@@ -38,14 +38,16 @@ export async function checkSignature(
     return res.status(400).json({ message: 'Bad request' });
   }
 
-  const message = `${tgData}:${timestamp}`;
+  const message = `${tgData}:${req.baseUrl}:${timestamp}`;
 
   const hash = CryptoJS.HmacSHA256(message, SIGNATURE_SECRET).toString(
     CryptoJS.enc.Hex,
   );
 
   if (hash !== signature) {
-    return res.status(400).json({ message: 'Bad request' });
+    res.status(400).json({ message: 'Bad request' });
+
+    return;
   }
 
   try {
@@ -56,7 +58,9 @@ export async function checkSignature(
     });
 
     if (signatureFinded) {
-      return res.status(400).json({ message: 'Bad request' });
+      res.status(400).json({ message: 'Bad request' });
+
+      return;
     }
 
     const data = Object.fromEntries(new URLSearchParams(tgData as string));
@@ -73,7 +77,7 @@ export async function checkSignature(
 
     next();
   } catch (e) {
-    console.log('Errir check signature: ', e.message);
+    console.log('Error check signature: ', e.message);
 
     return res.status(400).json({ message: 'Bad request' });
   }
