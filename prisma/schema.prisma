@@ -135,3 +135,17 @@ model Request {
   userId    BigInt
   createdAt DateTime @default(now())
 }
+
+enum BattleStatus {
+  none
+  running
+  finishing
+  finished
+}
+
+model Battle {
+  id        Int           @id @default(autoincrement())
+  status    BattleStatus  @default(none)
+  startDate DateTime
+  endDate   DateTime
+}

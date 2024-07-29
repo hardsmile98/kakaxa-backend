@@ -316,6 +316,24 @@ export class UsersService {
       WHERE t."userId" = ${user.id}`,
       );
 
+      const activeBattle = await this.prismaService.battle.findFirst({
+        where: { NOT: { status: 'finished' } },
+        select: {
+          status: true,
+          startDate: true,
+          endDate: true,
+        },
+      });
+
+      let battle;
+
+      if (activeBattle) {
+        battle = {
+          top: [],
+          position: {},
+        };
+      }
+
       return {
         farm: {
           top: topFarm,
@@ -325,6 +343,8 @@ export class UsersService {
           top: topInvite,
           position: positionInvite,
         },
+        battle: activeBattle?.status === 'running' ? battle : null,
+        activeBattle,
         success: true,
       };
     } catch (e) {
