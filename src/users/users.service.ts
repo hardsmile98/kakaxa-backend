@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TgUser } from 'src/global/decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generate } from 'short-uuid';
+import { format } from 'date-fns';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
 import { settings } from 'src/global/constants';
@@ -338,7 +339,13 @@ export class UsersService {
           `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
           FROM public."UserScore" t
           INNER JOIN public."User" u ON t."userId" = u."userId"
-          WHERE t.type = 'increase' AND t.reason = 'game'
+          WHERE t.type = 'increase' AND t.reason = 'game' AND t."createdAt" > '${format(
+            activeBattle.startDate,
+            'yyyy-MM-dd HH:mm:ss',
+          )}' AND  t."createdAt" < '${format(
+            activeBattle.endDate,
+            'yyyy-MM-dd HH:mm:ss',
+          )}'
           GROUP BY t."userId", u.name, u.username
           ORDER BY score DESC
           LIMIT ${LIMIT};`,
@@ -354,7 +361,13 @@ export class UsersService {
           FROM (
             SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
             FROM public."UserScore" 
-            WHERE type = 'increase' AND reason = 'game' GROUP BY "userId"
+            WHERE type = 'increase' AND reason = 'game' AND "createdAt" > '${format(
+              activeBattle.startDate,
+              'yyyy-MM-dd HH:mm:ss',
+            )}' AND  "createdAt" < '${format(
+            activeBattle.endDate,
+            'yyyy-MM-dd HH:mm:ss',
+          )}'  GROUP BY "userId"
           ) as t
           WHERE t."userId" = ${user.id}`,
         );
@@ -374,7 +387,9 @@ export class UsersService {
           top: topInvite,
           position: positionInvite,
         },
-        battle: activeBattle?.status === 'running' ? battle : null,
+        battle: ['running', 'finishing'].includes(activeBattle?.status)
+          ? battle
+          : null,
         activeBattle,
         success: true,
       };
