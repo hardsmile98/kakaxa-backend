@@ -293,12 +293,12 @@ export class UsersService {
         }[]
       >(
         `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
-      FROM public."UserScore" t
-      INNER JOIN public."User" u ON t."userId" = u."userId"
-      WHERE t.type = 'increase' AND t.reason = 'invite'
-      GROUP BY t."userId", u.name, u.username
-      ORDER BY score DESC
-      LIMIT ${LIMIT};`,
+        FROM public."UserScore" t
+        INNER JOIN public."User" u ON t."userId" = u."userId"
+        WHERE t.type = 'increase' AND t.reason = 'invite'
+        GROUP BY t."userId", u.name, u.username
+        ORDER BY score DESC
+        LIMIT ${LIMIT};`,
       );
 
       const [positionInvite] = await this.prismaService.$queryRawUnsafe<
@@ -308,12 +308,12 @@ export class UsersService {
         }[]
       >(
         `SELECT index, score 
-      FROM (
-        SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
-        FROM public."UserScore" 
-        WHERE type = 'increase' AND reason = 'invite' GROUP BY "userId"
-      ) as t
-      WHERE t."userId" = ${user.id}`,
+        FROM (
+          SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
+          FROM public."UserScore" 
+          WHERE type = 'increase' AND reason = 'invite' GROUP BY "userId"
+        ) as t
+        WHERE t."userId" = ${user.id}`,
       );
 
       const activeBattle = await this.prismaService.battle.findFirst({
@@ -328,9 +328,40 @@ export class UsersService {
       let battle;
 
       if (activeBattle) {
+        const topBattle = await this.prismaService.$queryRawUnsafe<
+          {
+            score: number;
+            name: string;
+            username: string;
+          }[]
+        >(
+          `SELECT u.name, u.username, t."userId", SUM(t.count) AS score
+          FROM public."UserScore" t
+          INNER JOIN public."User" u ON t."userId" = u."userId"
+          WHERE t.type = 'increase' AND t.reason = 'game'
+          GROUP BY t."userId", u.name, u.username
+          ORDER BY score DESC
+          LIMIT ${LIMIT};`,
+        );
+
+        const [positionBattle] = await this.prismaService.$queryRawUnsafe<
+          {
+            score: number;
+            index: number;
+          }[]
+        >(
+          `SELECT index, score 
+          FROM (
+            SELECT "userId", SUM(count) AS score, ROW_NUMBER() OVER (ORDER BY SUM(count) DESC) AS index 
+            FROM public."UserScore" 
+            WHERE type = 'increase' AND reason = 'game' GROUP BY "userId"
+          ) as t
+          WHERE t."userId" = ${user.id}`,
+        );
+
         battle = {
-          top: [],
-          position: {},
+          top: topBattle,
+          position: positionBattle,
         };
       }
 
