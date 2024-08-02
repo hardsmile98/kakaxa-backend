@@ -5,6 +5,8 @@ const settings = {
   ENERGY_RECOVERY_TIME_SECONDS: 60 * 60 * 1.5,
   MAX_DIFF_SECONDS: 180,
   MAX_SCORE_IN_GAME: 150,
+  MAX_DAILY_REWARD: 70,
+  STEP_DAILY_REWARD: 10,
 };
 
 export { settings };

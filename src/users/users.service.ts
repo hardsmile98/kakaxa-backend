@@ -5,7 +5,7 @@ import { generate } from 'short-uuid';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
 import { settings } from 'src/global/constants';
-import { Reason } from '@prisma/client';
+import { DailyReward, Reason } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -531,5 +531,59 @@ export class UsersService {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+  }
+
+  async getDayliReward(user: TgUser) {
+    const { id: userId } = user;
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const rewardData = await this.prismaService.dailyReward.findUnique({
+      where: { userId },
+    });
+
+    let rewardRecord: DailyReward | null = null;
+
+    if (rewardData) {
+      const lastRewardDate = new Date(rewardData.lastRewardDate);
+
+      lastRewardDate.setHours(0, 0, 0, 0);
+
+      if (lastRewardDate.getTime() !== today.getTime()) {
+        rewardRecord = await this.prismaService.dailyReward.update({
+          where: { userId },
+          data: {
+            lastRewardDate: today,
+          },
+        });
+      }
+    } else {
+      rewardRecord = await this.prismaService.dailyReward.create({
+        data: {
+          userId,
+          lastRewardDate: today,
+          rewardAmount: 10,
+        },
+      });
+    }
+
+    if (rewardRecord) {
+      delete rewardData.userId;
+
+      delete rewardData.id;
+
+      await this.increaseScore(
+        userId,
+        rewardRecord.rewardAmount,
+        'dailyReward',
+      );
+    }
+
+    return {
+      dailyReward: rewardRecord,
+      success: true,
+    };
   }
 }

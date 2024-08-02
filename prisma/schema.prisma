@@ -8,24 +8,25 @@ datasource db {
 }
 
 model User {
-  userId            BigInt      @id @unique
-  name              String      @default("")
-  username          String      @default("")
-  amountEnergy      Int         @default(3)
-  useEneryTimestamp String?     @db.VarChar(32)
-  gameTime          Int         @default(60)
-  score             Float       @default(0)
-  skin              String      @default("default")
-  gamesPlayed       Int         @default(0)
+  userId            BigInt       @id @unique
+  name              String       @default("")
+  username          String       @default("")
+  amountEnergy      Int          @default(3)
+  useEneryTimestamp String?      @db.VarChar(32)
+  gameTime          Int          @default(60)
+  score             Float        @default(0)
+  skin              String       @default("default")
+  gamesPlayed       Int          @default(0)
   userTasks         UserTask[]
-  inviteCode        String      @unique @db.VarChar(32)
-  isPremium         Boolean     @default(false)
+  inviteCode        String       @unique @db.VarChar(32)
+  isPremium         Boolean      @default(false)
   userBoosts        UserBoost[]
   userGames         UserGame[]
   userScores        UserScore[]
-  referrals         Referral[]  @relation("Referrer")
-  referredBy        Referral[]  @relation("Referred")
-  createdAt         DateTime    @default(now())
+  referrals         Referral[]   @relation("Referrer")
+  referredBy        Referral[]   @relation("Referred")
+  dailyReward       DailyReward?
+  createdAt         DateTime     @default(now())
 }
 
 model Referral {
@@ -117,6 +118,7 @@ enum Reason {
   invite
   game
   task
+  dailyReward
 }
 
 model UserScore {
@@ -144,8 +146,17 @@ enum BattleStatus {
 }
 
 model Battle {
-  id        Int           @id @default(autoincrement())
-  status    BattleStatus  @default(none)
+  id        Int          @id @default(autoincrement())
+  status    BattleStatus @default(none)
   startDate DateTime
   endDate   DateTime
+}
+
+model DailyReward {
+  id             Int       @id @default(autoincrement())
+  rewardAmount   Int       @default(0)
+  lastRewardDate DateTime?
+  strickDays     Int       @default(0)
+  user           User      @relation(fields: [userId], references: [userId])
+  userId         BigInt    @unique
 }

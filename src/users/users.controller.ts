@@ -32,6 +32,11 @@ export class UsersController {
     return this.usersService.getReferals(user);
   }
 
+  @Get('/dailyReward')
+  getDailyReward(@GetUser() user: TgUser) {
+    return this.usersService.getDayliReward(user);
+  }
+
   @Get('/stats')
   getStatistics() {
     return this.usersService.getStatistics();
