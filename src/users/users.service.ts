@@ -471,7 +471,7 @@ export class UsersService {
     try {
       const userCount = await this.prismaService.user.count();
 
-      const addUsers = 4_600;
+      const addUsers = 4_500;
 
       return {
         count: userCount + addUsers,
