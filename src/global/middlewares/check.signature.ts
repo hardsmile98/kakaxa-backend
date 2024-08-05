@@ -20,6 +20,8 @@ export async function checkSignature(
   const timestamp = req.headers['x-timestamp'];
   const tgData = req.headers['x-telegram-data'];
 
+  console.log(req);
+
   if (!signature || !timestamp || !tgData) {
     return res.status(400).json({ message: 'Bad request' });
   }
