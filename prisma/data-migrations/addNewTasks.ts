@@ -4,16 +4,10 @@ const prisma = new PrismaClient();
 
 const newTasksArray = [
   {
-    title: 'Enoki 💸 Alpha Calls 1000X',
+    title: 'Nodgoin • GoPump',
     bonus: 100,
     linkType: 'telegram' as LinkType,
-    link: 'https://t.me/enokicrypto',
-  },
-  {
-    title: 'Pokemon Ball',
-    bonus: 100,
-    linkType: 'telegram' as LinkType,
-    link: 'https://t.me/PokemonBall_bot',
+    link: 'https://t.me/nodgoin',
   },
 ];
 
