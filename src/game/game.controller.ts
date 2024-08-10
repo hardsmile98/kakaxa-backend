@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { GameService } from './game.service';
-import { GetUser, TgUser } from 'src/global/decorator';
+import { GetUser, TgUser } from 'src/global';
 import { GameDto, StartGameDto } from './dto';
 
 @Controller('game')

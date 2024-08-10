@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TgUser } from 'src/global/decorator';
+import { TgUser, settings } from 'src/global';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { generate } from 'short-uuid';
 import { NftQuery } from './dto';
 import { TonapiService } from 'src/tonapi/tonapi.service';
-import { settings } from 'src/global/constants';
 import { Reason } from '@prisma/client';
 
 @Injectable()
@@ -462,6 +461,18 @@ export class UsersService {
         bonusForInvite,
         'invite',
       );
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  async getUserIds() {
+    try {
+      const userIds = await this.prismaService.user.findMany({
+        select: { userId: true },
+      });
+
+      return userIds.map(({ userId }) => Number(userId));
     } catch (e) {
       throw new BadRequestException(e.message);
     }

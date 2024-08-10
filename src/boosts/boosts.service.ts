@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TgUser } from 'src/global/decorator';
+import { TgUser, settings } from 'src/global';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BoostDto } from './dto';
 import { UsersService } from 'src/users/users.service';
-import { settings } from 'src/global/constants';
 
 @Injectable()
 export class BoostsService {

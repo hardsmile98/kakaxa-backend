@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { GetUser, TgUser } from 'src/global/decorator';
+import { GetUser, TgUser } from 'src/global';
 import { NftQuery } from './dto';
 
 @Controller('users')

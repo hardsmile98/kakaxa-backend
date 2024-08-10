@@ -1,11 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TgUser } from 'src/global/decorator';
+import { TgUser, settings } from 'src/global';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { GameDto, StartGameDto } from './dto';
 import { BoostsService } from 'src/boosts/boosts.service';
 import { UsersService } from 'src/users/users.service';
-import { settings } from 'src/global/constants';
 
 @Injectable()
 export class GameService {

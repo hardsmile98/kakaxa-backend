@@ -2,22 +2,16 @@ import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
-
-interface EnvironmentVariables {
-  WORLD_NFT_COLLECTION_ADDRESS: string;
-  BURN_NFT_COLLECTION_ADDRESS: string;
-  SHITTY_KING_NFT_COLLECTION_ADDRESS: string;
-  TONAPI_TOKEN: string;
-}
+import { EnvironmentVariables } from 'src/global';
 
 @Injectable()
 export class TonapiService {
-  topapiToken = this.configService.get('TONAPI_TOKEN');
-
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService<EnvironmentVariables>,
   ) {}
+
+  topapiToken = this.configService.get('TONAPI_TOKEN');
 
   worldCollectionAddress = this.configService.get(
     'WORLD_NFT_COLLECTION_ADDRESS',

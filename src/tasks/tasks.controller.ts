@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { GetUser, TgUser } from 'src/global/decorator';
+import { GetUser, TgUser } from 'src/global';
 import { TasksService } from './tasks.service';
 import { TaskDto } from './dto';
 

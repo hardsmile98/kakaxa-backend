@@ -7,4 +7,18 @@ const settings = {
   MAX_SCORE_IN_GAME: 150,
 };
 
+interface EnvironmentVariables {
+  URL_CLIENT: string;
+  DATABASE_URL: string;
+  TELEGRAM_TOKEN: string;
+  SIGNATURE_SECRET: string;
+  URL_BOT_API: string;
+  WORLD_NFT_COLLECTION_ADDRESS: string;
+  BURN_NFT_COLLECTION_ADDRESS: string;
+  SHITTY_KING_NFT_COLLECTION_ADDRESS: string;
+  TONAPI_TOKEN: string;
+}
+
 export { settings };
+
+export type { EnvironmentVariables };
