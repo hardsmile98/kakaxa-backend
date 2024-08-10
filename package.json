@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "data-migration": "ts-node ./prisma/data-migrations/index.ts",
     "save-users": "ts-node ./prisma/data-migrations/saveUsers.ts",
-    "add-tasks": "ts-node ./prisma/data-migrations/addNewTasks.ts"
+    "add-tasks": "ts-node ./prisma/data-migrations/addNewTasks.ts",
+    "del-tasks": "ts-node ./prisma/data-migrations/deleteTasks.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",
