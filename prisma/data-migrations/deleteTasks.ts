@@ -6,17 +6,17 @@ const ids = [1];
 
 async function main() {
   try {
-    await prisma.task.deleteMany({
+    await prisma.userTask.deleteMany({
       where: {
-        id: {
+        taskId: {
           in: ids,
         },
       },
     });
 
-    await prisma.userTask.deleteMany({
+    await prisma.task.deleteMany({
       where: {
-        taskId: {
+        id: {
           in: ids,
         },
       },
