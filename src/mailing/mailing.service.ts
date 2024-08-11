@@ -30,7 +30,11 @@ export class MailingService {
 
       const result = await lastValueFrom(
         this.httpService
-          .post<boolean>(`${this.urlBotApi}/bot/telegram/send/${token}`, {
+          .post<{
+            success: boolean;
+            all: number;
+            sended: number;
+          }>(`${this.urlBotApi}/bot/telegram/send/${token}`, {
             ...data,
             ids: userIds,
           })
@@ -39,7 +43,9 @@ export class MailingService {
 
       return result;
     } catch (e) {
-      return false;
+      return {
+        success: false,
+      };
     }
   }
 }
