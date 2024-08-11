@@ -34,7 +34,7 @@ export class AppModule implements NestModule {
       .apply(checkSignature)
       .exclude(
         { path: 'users/stats', method: RequestMethod.GET },
-        { path: 'mailing/*', method: RequestMethod.ALL },
+        { path: 'mailing/send', method: RequestMethod.POST },
       )
       .forRoutes('*');
   }
