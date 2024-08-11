@@ -28,7 +28,7 @@ export class MailingService {
 
       const { token, ...data } = dto;
 
-      const result = await lastValueFrom(
+      await lastValueFrom(
         this.httpService
           .post<{
             success: boolean;
@@ -41,10 +41,14 @@ export class MailingService {
           .pipe(map((res) => res.data)),
       );
 
-      return result;
+      return {
+        success: true,
+        message: 'job created',
+      };
     } catch (e) {
       return {
         success: false,
+        message: 'job failed',
       };
     }
   }
