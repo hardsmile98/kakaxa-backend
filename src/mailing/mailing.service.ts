@@ -18,7 +18,13 @@ export class MailingService {
 
   async sendToBot(dto: SendToBotDto) {
     try {
-      const userIds = await this.userService.getUserIds();
+      let userIds: number[];
+
+      if (dto.ids) {
+        userIds = dto.ids;
+      } else {
+        userIds = await this.userService.getUserIds();
+      }
 
       const { token, ...data } = dto;
 

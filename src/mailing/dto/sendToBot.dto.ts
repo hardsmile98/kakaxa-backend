@@ -1,4 +1,4 @@
-import { IsObject, IsString } from 'class-validator';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 
 export class SendToBotDto {
   @IsString()
@@ -6,6 +6,9 @@ export class SendToBotDto {
 
   @IsString()
   action: string;
+
+  @IsOptional()
+  ids: number[];
 
   @IsObject()
   data: {
