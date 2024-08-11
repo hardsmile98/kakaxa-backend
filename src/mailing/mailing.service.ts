@@ -28,12 +28,11 @@ export class MailingService {
 
       const { token, ...data } = dto;
 
-      await lastValueFrom(
+      const result = await lastValueFrom(
         this.httpService
           .post<{
             success: boolean;
-            all: number;
-            sended: number;
+            messageall: string;
           }>(`${this.urlBotApi}/bot/telegram/send/${token}`, {
             ...data,
             ids: userIds,
@@ -41,10 +40,7 @@ export class MailingService {
           .pipe(map((res) => res.data)),
       );
 
-      return {
-        success: true,
-        message: 'job created',
-      };
+      return result;
     } catch (e) {
       return {
         success: false,
