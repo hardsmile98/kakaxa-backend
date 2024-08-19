@@ -153,10 +153,9 @@ model Battle {
 }
 
 model DailyReward {
-  id             Int       @id @default(autoincrement())
+  userId         BigInt    @id @unique
+  user           User      @relation(fields: [userId], references: [userId])
   rewardAmount   Int       @default(0)
   lastRewardDate DateTime?
   strickDays     Int       @default(0)
-  user           User      @relation(fields: [userId], references: [userId])
-  userId         BigInt    @unique
 }
